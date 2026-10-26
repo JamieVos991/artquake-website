@@ -47,7 +47,9 @@
     }
     ctaVersturen = true;
     try {
-      const res = await fetch('https://formsubmit.co/ajax/info@art-quake.com', {
+      // de code van FormSubmit staat voor info@art-quake.com; zo staat het
+      // mailadres niet leesbaar in de code (minder spam)
+      const res = await fetch('https://formsubmit.co/ajax/08c4ed28aca43b4ae4d0b9f0a3fc1867', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({
@@ -125,7 +127,11 @@
     </div>
 
     <button type="submit" class="cta-submit" disabled={ctaVersturen}>
-      {ctaVersturen ? 'BEZIG…' : 'VERSTUUR'}
+      {#if ctaVersturen}
+        BEZIG…<span class="cta-spinner" aria-hidden="true"></span>
+      {:else}
+        VERSTUUR
+      {/if}
     </button>
   </form>
 </section>
@@ -388,6 +394,28 @@
   .cta-submit:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+  }
+  /* draaiend rondje naast BEZIG…: versturen kan even duren */
+  .cta-spinner {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    margin-left: 10px;
+    vertical-align: -0.15em;
+    border: 3px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: cta-draai 0.8s linear infinite;
+  }
+  @keyframes cta-draai {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cta-spinner {
+      animation-duration: 2.4s;
+    }
   }
   /* leeg: geen extra witruimte in het formulier, maar niet verbergen
      (een verborgen meldingsvak wordt niet voorgelezen) */
