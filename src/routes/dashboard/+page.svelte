@@ -814,9 +814,44 @@
   <meta name="robots" content="noindex" />
 </svelte:head>
 
+<!-- skeletons: grijze vlakken in de vorm van wat er komt, zolang het laadt -->
+{#snippet skeletLijst(aantal)}
+  <ul class="db-lijst" aria-hidden="true">
+    {#each Array(aantal) as _}
+      <li class="db-regel db-skel-regel">
+        <span class="db-skel db-skel-rond"></span>
+        <span class="db-skel-tekst">
+          <span class="db-skel db-skel-lijn"></span>
+          <span class="db-skel db-skel-lijn db-skel-kort"></span>
+        </span>
+        <span class="db-skel db-skel-knop"></span>
+      </li>
+    {/each}
+  </ul>
+  <p class="db-visueel-verborgen" role="status">Laden…</p>
+{/snippet}
+{#snippet skeletKop()}
+  <span class="db-skel db-skel-kop" aria-hidden="true"></span>
+{/snippet}
+
 {#if !authGecontroleerd}
-  <div class="auth-gate">
-    <p>Bezig met controleren…</p>
+  <!-- nog niet bekend of je bent ingelogd: alvast de vorm van het overzicht -->
+  <div class="db" aria-busy="true">
+    <div class="db-paneel">
+      <div class="db-kop">
+        <span class="db-skel db-skel-titel" aria-hidden="true"></span>
+      </div>
+      <div class="db-kaarten" aria-hidden="true">
+        {#each ["oranje", "donker", "paars", "licht"] as kleur}
+          <div class="db-kaart db-kaart-{kleur}">
+            <span class="db-skel db-skel-label"></span>
+            {@render skeletKop()}
+            <span class="db-skel db-skel-lijn"></span>
+          </div>
+        {/each}
+      </div>
+      <p class="db-visueel-verborgen" role="status">Laden…</p>
+    </div>
   </div>
 {:else if !ingelogdeGebruiker}
   <div class="auth-gate">
@@ -833,7 +868,11 @@
       <section class="db-kaarten" aria-label="Statistieken">
         <article class="db-kaart db-kaart-oranje">
           <span class="db-label db-label-donker">Deze week</span>
-          <h2>{dezeWeek.length} {dezeWeek.length === 1 ? "reservering" : "reserveringen"}</h2>
+          {#if reserveringenGeladen}
+            <h2>{dezeWeek.length} {dezeWeek.length === 1 ? "reservering" : "reserveringen"}</h2>
+          {:else}
+            {@render skeletKop()}
+          {/if}
           <div class="db-voortgang">
             <p><span>Al geweest</span><span>{dezeWeekGeweest}/{dezeWeek.length}</span></p>
             <div class="db-balk"><i style:width="{dezeWeek.length ? (dezeWeekGeweest / dezeWeek.length) * 100 : 0}%"></i></div>
@@ -842,7 +881,11 @@
 
         <article class="db-kaart db-kaart-donker">
           <span class="db-label db-label-oranje">Altijd</span>
-          <h2>{reserveringen.length} {reserveringen.length === 1 ? "reservering" : "reserveringen"} in totaal</h2>
+          {#if reserveringenGeladen}
+            <h2>{reserveringen.length} {reserveringen.length === 1 ? "reservering" : "reserveringen"} in totaal</h2>
+          {:else}
+            {@render skeletKop()}
+          {/if}
           <div class="db-voortgang">
             <p><span>Nog te komen</span><span>{komendeReserveringen}/{reserveringen.length}</span></p>
             <div class="db-balk"><i style:width="{reserveringen.length ? (komendeReserveringen / reserveringen.length) * 100 : 0}%"></i></div>
@@ -851,7 +894,11 @@
 
         <article class="db-kaart db-kaart-paars">
           <span class="db-label db-label-donker">Artiesten</span>
-          <h2>{actieveMakers} makers op de website</h2>
+          {#if artiestenGeladen}
+            <h2>{actieveMakers} makers op de website</h2>
+          {:else}
+            {@render skeletKop()}
+          {/if}
           <div class="db-voortgang">
             <p><span>Podium · Expo</span><span>{aantalPodium} · {artiesten.length - aantalPodium}</span></p>
             <div class="db-balk"><i style:width="{artiesten.length ? (aantalPodium / artiesten.length) * 100 : 0}%"></i></div>
@@ -860,7 +907,11 @@
 
         <article class="db-kaart db-kaart-licht">
           <span class="db-label db-label-donker">Agenda</span>
-          <h2>{komendeAgenda} {komendeAgenda === 1 ? "activiteit" : "activiteiten"} op komst</h2>
+          {#if agendaGeladen}
+            <h2>{komendeAgenda} {komendeAgenda === 1 ? "activiteit" : "activiteiten"} op komst</h2>
+          {:else}
+            {@render skeletKop()}
+          {/if}
         </article>
       </section>
 
@@ -873,7 +924,7 @@
             <a class="db-verwijder db-top-knop" href="{base}/reserveren">Nieuwe reservering</a>
           </header>
           {#if !reserveringenGeladen}
-            <p class="db-leeg">Laden…</p>
+            {@render skeletLijst(4)}
           {:else if reserveringen.length === 0}
             <p class="db-leeg">Nog geen reserveringen binnengekomen.</p>
           {:else}
@@ -1008,7 +1059,7 @@
             Activiteiten worden {BEWAAR_MAANDEN} maanden na de datum automatisch verwijderd, met foto en poster.
           </p>
           {#if !agendaGeladen}
-            <p class="db-leeg">Laden…</p>
+            {@render skeletLijst(4)}
           {:else if agendaItems.length === 0}
             <p class="db-leeg">Geen evenementen op komst.</p>
           {:else}
@@ -1252,7 +1303,16 @@
           <p class="db-gelukt db-melding" role="status">{posterMelding}</p>
         {/if}
         {#if !agendaGeladen}
-          <p class="db-leeg">Laden…</p>
+          <ul class="db-posters" aria-hidden="true">
+            {#each Array(4) as _}
+              <li class="db-poster">
+                <span class="db-skel db-skel-poster"></span>
+                <span class="db-skel db-skel-lijn db-skel-kort"></span>
+                <span class="db-skel db-skel-lijn"></span>
+              </li>
+            {/each}
+          </ul>
+          <p class="db-visueel-verborgen" role="status">Laden…</p>
         {:else if komendeActiviteiten.length === 0}
           <p class="db-leeg">Er staan geen komende activiteiten in de agenda.</p>
         {:else}
@@ -1322,7 +1382,7 @@
             bind:value={artiestZoek}
           />
           {#if !artiestenGeladen}
-            <p class="db-leeg">Laden…</p>
+            {@render skeletLijst(6)}
           {:else if gefilterdeArtiesten.length === 0}
             <p class="db-leeg">Geen artiesten gevonden.</p>
           {:else}
@@ -1522,6 +1582,80 @@
      en harde verschoven schaduwen (zoals de crewkaarten en het
      contactformulier). */
 
+  /* skeleton loader: kleur volgt de tekstkleur, dus werkt op elke achtergrond */
+  .db-skel {
+    display: block;
+    border-radius: 4px;
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, currentColor 10%, transparent) 25%,
+      color-mix(in srgb, currentColor 20%, transparent) 37%,
+      color-mix(in srgb, currentColor 10%, transparent) 63%
+    );
+    background-size: 400% 100%;
+    animation: db-shimmer 1.4s ease infinite;
+  }
+  @keyframes db-shimmer {
+    0% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0 50%;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .db-skel {
+      animation: none;
+    }
+  }
+  .db-skel-titel {
+    width: min(70%, 620px);
+    height: clamp(32px, 10vw, 110px);
+    color: var(--color-fg);
+  }
+  .db-skel-label {
+    width: 96px;
+    height: 26px;
+  }
+  .db-skel-kop {
+    width: 80%;
+    height: 30px;
+  }
+  .db-skel-lijn {
+    width: 100%;
+    height: 12px;
+  }
+  .db-skel-kort {
+    width: 55%;
+  }
+  .db-regel.db-skel-regel {
+    grid-template-columns: 40px minmax(0, 1fr) 72px;
+  }
+  .db-skel-rond {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+  }
+  .db-skel-tekst {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .db-skel-knop {
+    height: 30px;
+  }
+  .db-skel-poster {
+    aspect-ratio: 3 / 4;
+  }
+  .db-visueel-verborgen {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
   .auth-gate {
     min-height: 100vh;
     display: flex;
