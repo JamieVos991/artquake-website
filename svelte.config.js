@@ -1,4 +1,5 @@
 import adapter from '@sveltejs/adapter-static';
+import { SITE_PAD } from './src/lib/data/site.js';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -19,9 +20,9 @@ const config = {
 			handleUnseenRoutes: 'ignore'
 		},
 		paths: {
-			// de site staat in de hoofdmap van art-quake.com, dus geen pad ervoor
-			// (zie ook src/lib/data/site.js en static/CNAME)
-			base: ''
+			// het pad waarop de site staat; wisselen kan in src/lib/data/site.js
+			// (lokaal altijd zonder pad)
+			base: process.env.NODE_ENV === 'production' ? SITE_PAD : ''
 		}
 	}
 };
