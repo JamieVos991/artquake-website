@@ -35,3 +35,4 @@ vite.config.ts.timestamp-*
 # foto's om via het dashboard te uploaden, niet in de repo
 fotos-voor-dashboard/
 /build-vimexx.zip
+/upload-vimexx
