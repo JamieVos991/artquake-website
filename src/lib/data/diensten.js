@@ -51,10 +51,10 @@ export const diensten = [
 			{ foto: "expositie-op-straat", titel: "Expositie op straat", verhouding: "1 / 1" },
 		],
 		bg: "cream",
-		intro: "Beeldend werk in de hoofdrol",
+		intro: "Visuele kunst in de hoofdrol",
 		metaBeschrijving:
 			"Exposities van Artquake: jonge makers laten hun schilderijen, fotografie, keramiek en meer zien aan publiek. Wij regelen de locatie, opbouw en promotie.",
-		text: "Artquake Beeldend draait om kunst maken, samen ons werk laten zien op markten of exposities, en leren praten over je werk in een fijne omgeving.\n\nHet is een plek waar je jouw talent voor schilderen, fotografie, tekenen, textiel, keramiek en schrijven kunt ontdekken, samen met andere jonge kunstliefhebbers.\n\nVan schilderijen tot fotografie en installaties: op onze exposities laat je je werk zien aan een publiek dat er speciaal voor komt. Wij regelen de locatie, de opbouw en de promotie, zodat jij je kunt richten op je werk.",
+		text: "Bij Artquake Visuele kunst draait het om kunst maken, samen ons werk laten zien op markten of exposities, en leren praten over je werk in een fijne omgeving.\n\nHet is een plek waar je jouw talent voor schilderen, fotografie, tekenen, textiel, keramiek en schrijven kunt ontdekken, samen met andere jonge kunstliefhebbers.\n\nVan schilderijen tot fotografie en installaties: op onze exposities laat je je werk zien aan een publiek dat er speciaal voor komt. Wij regelen de locatie, de opbouw en de promotie, zodat jij je kunt richten op je werk.",
 	},
 	{
 		slug: "jam-sessies",

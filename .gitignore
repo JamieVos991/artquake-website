@@ -30,3 +30,6 @@ vite.config.ts.timestamp-*
 # Logs (npm, Firebase CLI en emulators)
 *.log
 .firebase/
+
+# foto's om via het dashboard te uploaden, niet in de repo
+fotos-voor-dashboard/

@@ -39,6 +39,9 @@
 
 html {
   color-scheme: dark;
+  /* ruimte voor de scrollbalk altijd vasthouden: anders wordt de pagina
+     breder als een menu of popup het scrollen uitzet, en verspringt alles */
+  scrollbar-gutter: stable;
 }
 
 body {

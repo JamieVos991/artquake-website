@@ -56,7 +56,7 @@
           bericht: ctaBericht,
           // FormSubmit gooit een bericht weg als _honey is ingevuld
           _honey: ctaHoney,
-          _subject: `Nieuw bericht via artquake.nl van ${ctaNaam}`,
+          _subject: `Nieuw bericht via art-quake.com van ${ctaNaam}`,
         }),
       });
       const data = await res.json();

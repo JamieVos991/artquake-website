@@ -145,8 +145,9 @@
   <header class="ap-section-head">
     <h2 class="ap-section-eyebrow">ALLE ARTIESTEN</h2>
     <span class="ap-section-rule"></span>
-    <span class="ap-section-count" aria-live="polite"
-      >{gefilterdeArtiesten.length} {gefilterdeArtiesten.length === 1 ? "MAKER" : "MAKERS"}</span
+    <!-- geen zichtbaar aantal; schermlezers horen wel hoeveel resultaten er zijn na zoeken of filteren -->
+    <span class="ap-visueel-verborgen" aria-live="polite"
+      >{gefilterdeArtiesten.length} {gefilterdeArtiesten.length === 1 ? "resultaat" : "resultaten"}</span
     >
   </header>
 
@@ -377,10 +378,6 @@
     flex: 1;
     height: 2px;
     background: var(--color-bg);
-  }
-  .ap-section-count {
-    font: 700 12px/1 var(--font-mono);
-    letter-spacing: 0.16em;
   }
 
   /* fieldset zonder de standaard rand en ruimte van de browser */
@@ -941,15 +938,14 @@
       order: 1;
       padding: 0 20px 28px;
     }
+    /* ingelijst met ruimte eromheen, net als op een groot scherm */
     .ap-dialoog-foto {
       aspect-ratio: 4 / 3;
       max-height: 36dvh;
       min-height: 0;
-      width: 100%;
-      margin: 0;
-      border: 0;
-      border-bottom: 3px solid var(--color-bg);
-      box-shadow: none;
+      width: auto;
+      margin: 20px 26px 0 20px;
+      box-shadow: 6px 6px 0 var(--color-accent);
     }
     .ap-dialoog-tekst {
       padding: 24px 20px 28px;
@@ -957,8 +953,9 @@
     /* hier ligt het kruisje op de foto: zelfde oranje vierkant als het menu,
        zodat het op elke foto goed te zien is */
     .ap-sluit {
-      top: 14px;
-      right: 14px;
+      /* binnen de rand van de ingelijste foto */
+      top: 30px;
+      right: 38px;
       background: var(--color-accent);
       border: 3px solid var(--color-bg);
       box-shadow: 4px 4px 0 var(--color-bg);

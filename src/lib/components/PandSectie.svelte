@@ -166,13 +166,13 @@
   <svg class="route-bord route-bord-boven bord-mobiel" viewBox="0 0 360 1380" aria-hidden="true">
     <g transform="translate(286 1320) rotate(6)">
       <rect class="vlag vlag-finish" x="-58" y="-27" width="116" height="54" />
-      <text class="vlag-tekst vlag-tekst-licht" y="5">KOM LANGS!</text>
+      <text class="vlag-tekst vlag-tekst-licht" y="5">OP AFSPRAAK</text>
     </g>
   </svg>
   <svg class="route-bord route-bord-boven bord-breed" viewBox="0 0 1160 1280" aria-hidden="true">
     <g transform="translate(1000 1210) rotate(6)">
       <rect class="vlag vlag-finish" x="-96" y="-40" width="192" height="80" />
-      <text class="vlag-tekst vlag-tekst-licht" y="7">KOM LANGS!</text>
+      <text class="vlag-tekst vlag-tekst-licht" y="7">OP AFSPRAAK</text>
     </g>
   </svg>
 
@@ -181,8 +181,10 @@
     <div class="route-tekst">
       <h4 class="route-kop route-kop-oranje">GRATIS VOOR JONGE MAKERS</h4>
       <p>
-        Jonge artiesten/kunstenaars mogen gratis gebruik maken van deze
-        ruimtes. Neem contact met ons op voor meer info.
+        Jonge artiesten en kunstenaars mogen gratis gebruikmaken van deze
+        ruimtes.
+        Neem contact met ons op
+        voor meer info of om een afspraak te maken.
       </p>
       <p>
         Je vindt ons op

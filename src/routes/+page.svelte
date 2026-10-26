@@ -69,7 +69,6 @@
   const agendaStap = 5;
   let agendaAantal = $state(agendaStap);
   let uitgelichteArtiesten = $state([]);
-  let aantalArtiesten = $state(0);
   let artiestenGeladen = $state(false);
 
   function kiesWillekeurig(lijst, aantal) {
@@ -100,7 +99,6 @@
     haalCollectieOp("artiesten")
       .then((docs) => {
         const alleArtiesten = docs.filter(artiestZichtbaar);
-        aantalArtiesten = alleArtiesten.length;
         uitgelichteArtiesten = kiesWillekeurig(alleArtiesten, 3);
       })
       .catch(() => {})
@@ -510,7 +508,6 @@
     <header class="section-head section-head-dark">
       <h2 class="section-eyebrow eyebrow-purple">MAKERS VAN NU</h2>
       <span class="section-rule section-rule-dark"></span>
-      <span class="section-count">{aantalArtiesten} MAKERS</span>
     </header>
     <ul class="talent-grid">
       {#if !artiestenGeladen}
@@ -966,10 +963,6 @@
   }
   .section-rule-dark {
     background: var(--color-bg);
-  }
-  .section-count {
-    font: 700 12px/1 var(--font-mono);
-    letter-spacing: 0.16em;
   }
 
   /* services grid */

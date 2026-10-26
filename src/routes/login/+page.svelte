@@ -73,7 +73,7 @@
               id="email"
               class="field-input"
               type="email"
-              placeholder="admin@artquake.nl"
+              placeholder="naam@art-quake.com"
               bind:value={email}
               autocomplete="email"
               required

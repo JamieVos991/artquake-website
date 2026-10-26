@@ -24,6 +24,7 @@
   import { agendaKleur, agendaContrast, standaardAgendaKleur } from "$lib/data/agendaKleur.js";
   import { bewaarInvoer } from "$lib/bewaardeInvoer.svelte.js";
   import { artiestZichtbaar } from "$lib/data/artiestZichtbaar.js";
+  import { makersVan, telMakers } from "$lib/data/makers.js";
   let authGecontroleerd = $state(false);
   let ingelogdeGebruiker = $state(null);
   // uitloggen gaat via het menu
@@ -480,6 +481,7 @@
   let artiestenGeladen = $state(false);
   let artiestZoek = $state("");
   let actieveArtiesten = $derived(artiesten.filter(artiestZichtbaar).length);
+  let actieveMakers = $derived(telMakers(artiesten.filter(artiestZichtbaar)));
   let aantalPodium = $derived(artiesten.filter((a) => a.type === "Podium").length);
   let gefilterdeArtiesten = $derived(
     artiesten.filter((a) =>
@@ -496,6 +498,8 @@
   let aSocials = $state(Object.fromEntries(artiestSocials.map((x) => [x.veld, ""])));
   let aImageUrl = $state("");
   let aFotoPositie = $state("");
+  // uit hoeveel mensen de artiest bestaat (band, duo); telt mee in het totaal op de site
+  let aAantalMakers = $state(1);
   // inactief: staat niet op de website, maar blijft in het dashboard bewaard
   let aInactief = $state(false);
   let artiestOpslaan = $state(false);
@@ -512,6 +516,7 @@
     for (const x of artiestSocials) aSocials[x.veld] = "";
     aImageUrl = "";
     aFotoPositie = "";
+    aAantalMakers = 1;
     aInactief = false;
   }
 
@@ -525,6 +530,7 @@
     for (const x of artiestSocials) aSocials[x.veld] = a[x.veld] ?? "";
     aImageUrl = a.imageUrl ?? "";
     aFotoPositie = a.fotoPositie ?? "";
+    aAantalMakers = makersVan(a);
     aInactief = !!a.inactief;
     artiestFout = "";
     artiestGelukt = "";
@@ -560,12 +566,14 @@
     "dashboard-artiest",
     () => ({
       artiestBewerkId, aNaam, aType, aBeschrijving, aBio, aImageUrl, aFotoPositie, aInactief,
+      aAantalMakers,
       aSocials: { ...aSocials },
       uploads: [...artiestUploads],
     }),
     (x) => {
       ({ artiestBewerkId, aNaam, aType, aBeschrijving, aBio, aImageUrl, aFotoPositie } = x);
       aInactief = !!x.aInactief;
+      aAantalMakers = x.aAantalMakers ?? 1;
       for (const s of artiestSocials) aSocials[s.veld] = x.aSocials?.[s.veld] ?? "";
       for (const url of x.uploads ?? []) artiestUploads.add(url);
     }
@@ -599,6 +607,7 @@
       ...Object.fromEntries(artiestSocials.map((x) => [x.veld, aSocials[x.veld].trim()])),
       imageUrl: aImageUrl,
       fotoPositie: aFotoPositie,
+      aantalMakers: makersVan({ aantalMakers: aAantalMakers }),
       inactief: aInactief,
     };
     const oudeFoto = artiestBewerkId ? artiesten.find((x) => x.id === artiestBewerkId)?.imageUrl : "";
@@ -842,7 +851,7 @@
 
         <article class="db-kaart db-kaart-paars">
           <span class="db-label db-label-donker">Artiesten</span>
-          <h2>{actieveArtiesten} {actieveArtiesten === 1 ? "artiest" : "artiesten"} op de website</h2>
+          <h2>{actieveMakers} makers op de website</h2>
           <div class="db-voortgang">
             <p><span>Podium · Expo</span><span>{aantalPodium} · {artiesten.length - aantalPodium}</span></p>
             <div class="db-balk"><i style:width="{artiesten.length ? (aantalPodium / artiesten.length) * 100 : 0}%"></i></div>
@@ -1300,7 +1309,7 @@
           <header class="db-blok-kop">
             <h2>Artiesten</h2>
             <span class="db-blok-info">
-              {actieveArtiesten} op de website{artiesten.length > actieveArtiesten
+              {actieveArtiesten} op de website, {actieveMakers} makers{artiesten.length > actieveArtiesten
                 ? `, ${artiesten.length - actieveArtiesten} inactief`
                 : ""}
             </span>
@@ -1339,7 +1348,7 @@
                     <span>
                       <strong>{a.naam ?? "–"}</strong>
                       <span>
-                        {[a.type, a.beschrijving].filter(Boolean).join(" · ")}
+                        {[a.type, a.beschrijving, makersVan(a) > 1 ? `${makersVan(a)} makers` : ""].filter(Boolean).join(" · ")}
                       </span>
                     </span>
                   </span>
@@ -1402,7 +1411,12 @@
                   {/each}
                 </select>
               </label>
+              <label class="db-veld db-veld-type">
+                <span>Aantal makers</span>
+                <input type="number" min="1" step="1" inputmode="numeric" bind:value={aAantalMakers} />
+              </label>
             </div>
+            <p class="db-uitleg">Bij een band of duo: uit hoeveel mensen bestaat de groep? Telt mee in het aantal makers op de site.</p>
             <label class="db-veld">
               <span>Over de artiest</span>
               <textarea
@@ -2122,7 +2136,7 @@
     grid-template-columns: 1fr 72px;
   }
   .db-veld-rij-artiest {
-    grid-template-columns: 1fr 120px;
+    grid-template-columns: 1fr 120px 120px;
   }
   .db-veld-kleur input {
     height: 46px;
