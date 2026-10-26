@@ -11,6 +11,7 @@
 
   let ctaNaam = $state('');
   let ctaEmail = $state('');
+  let ctaTelefoon = $state('');
   let ctaBericht = $state('');
   // honeypot tegen spam: mensen zien dit veld niet, bots vullen het wel in
   let ctaHoney = $state('');
@@ -28,10 +29,11 @@
   // half getypt bericht blijft staan na verversen (het verborgen spamveld niet)
   bewaarInvoer(
     'contact',
-    () => ({ naam: ctaNaam, email: ctaEmail, bericht: ctaBericht }),
+    () => ({ naam: ctaNaam, email: ctaEmail, telefoon: ctaTelefoon, bericht: ctaBericht }),
     (x) => {
       ctaNaam = x.naam ?? '';
       ctaEmail = x.email ?? '';
+      ctaTelefoon = x.telefoon ?? '';
       ctaBericht = x.bericht ?? '';
     }
   );
@@ -47,24 +49,33 @@
     }
     ctaVersturen = true;
     try {
-      // de code van FormSubmit staat voor info@art-quake.com; zo staat het
-      // mailadres niet leesbaar in de code (minder spam)
-      const res = await fetch('https://formsubmit.co/ajax/08c4ed28aca43b4ae4d0b9f0a3fc1867', {
+      // Op art-quake.com verstuurt de eigen server de mail (contact.php, snel).
+      // Elders (GitHub Pages, lokaal) kan dat niet en gaat het via FormSubmit;
+      // de code daar staat voor info@art-quake.com, zo staat het mailadres
+      // niet leesbaar in de code (minder spam).
+      const eigenServer = location.hostname.endsWith('art-quake.com');
+      const adres = eigenServer
+        ? '/contact.php'
+        : 'https://formsubmit.co/ajax/08c4ed28aca43b4ae4d0b9f0a3fc1867';
+      const res = await fetch(adres, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({
           naam: ctaNaam,
           email: ctaEmail,
+          telefoon: ctaTelefoon,
           bericht: ctaBericht,
-          // FormSubmit gooit een bericht weg als _honey is ingevuld
+          // het bericht wordt weggegooid als _honey is ingevuld
           _honey: ctaHoney,
           _subject: `Nieuw bericht via art-quake.com van ${ctaNaam}`,
         }),
       });
       const data = await res.json();
-      if (!res.ok || data.success !== 'true') throw new Error(data.message || 'Versturen mislukt');
+      // FormSubmit antwoordt met "true" als tekst, contact.php met true
+      if (!res.ok || String(data.success) !== 'true') throw new Error(data.message || 'Versturen mislukt');
       ctaNaam = '';
       ctaEmail = '';
+      ctaTelefoon = '';
       ctaBericht = '';
       ctaVerstuurd = true;
     } catch (err) {
@@ -104,6 +115,23 @@
     <label class="cta-field-label">
       <span class="visually-hidden">E-mail</span>
       <input class="cta-field" type="email" name="email" placeholder="e-mail" autocomplete="email" bind:value={ctaEmail} required />
+    </label>
+    <label class="cta-field-label">
+      <span class="visually-hidden">Telefoonnummer</span>
+      <!-- haakjes en streepje met \ ervoor: de browser leest het patroon strenger dan PHP -->
+      <input
+        class="cta-field"
+        type="tel"
+        name="telefoon"
+        placeholder="telefoonnummer"
+        autocomplete="tel"
+        inputmode="tel"
+        maxlength="30"
+        pattern="[0-9 +\(\)\-.]{'{'}6,30{'}'}"
+        title="Alleen cijfers, spaties en + - ( )"
+        bind:value={ctaTelefoon}
+        required
+      />
     </label>
     <label class="cta-field-label">
       <span class="visually-hidden">Je vraag of bericht</span>

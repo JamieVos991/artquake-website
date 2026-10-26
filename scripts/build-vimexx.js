@@ -12,4 +12,6 @@ if (uit.status !== 0) process.exit(uit.status ?? 1);
 
 // Apache-instellingen: nette adressen zonder .html, 404-pagina en https
 copyFileSync("scripts/vimexx.htaccess", "build-vimexx/.htaccess");
+// contactformulier: de server van Vimexx verstuurt de mail zelf
+copyFileSync("scripts/vimexx-contact.php", "build-vimexx/contact.php");
 console.log("\nKlaar: upload de inhoud van build-vimexx/ naar public_html.");

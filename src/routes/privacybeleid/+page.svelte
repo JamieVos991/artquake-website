@@ -21,6 +21,7 @@
   <ul>
     <li>Voor- en achternaam</li>
     <li>E-mailadres</li>
+    <li>Telefoonnummer</li>
     <li>Je bericht of de details van je reservering (ruimte, datum en tijd)</li>
   </ul>
   <p>
@@ -62,7 +63,7 @@
       zonder persoonsgegevens, met servers in de EU
     </li>
     <li>EmailJS: het versturen van de verificatiecode en bevestigingsmail</li>
-    <li>FormSubmit: het doorsturen van berichten uit het contactformulier</li>
+    <li>Vimexx: de hosting van de website en het versturen van berichten uit het contactformulier</li>
     <li>Google Fonts: het laden van de lettertypes op de website</li>
   </ul>
 
