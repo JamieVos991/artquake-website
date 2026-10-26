@@ -1,7 +1,8 @@
 # Artquake
 
 Website van Stichting Villa Artquake in Heerhugowaard: jong talent laat zich zien en horen.
-Live op https://jamievos991.github.io/artquake-website/ (straks art-quake.com, zie src/lib/data/site.js)
+Live op https://art-quake.com (hosting bij Vimexx) en als testversie op
+https://jamievos991.github.io/artquake-website/
 
 Gebouwd met SvelteKit (Svelte 5) als statische site op GitHub Pages, met Firebase voor de
 gegevens en de inlog van de crew.
@@ -18,8 +19,15 @@ Zie je een wijziging niet terug? Stop de dev-server (`Ctrl + C`) en start hem op
 
 ## Live zetten
 
-Elke push naar `master` wordt door GitHub Actions gebouwd en op GitHub Pages gezet
-(`.github/workflows/deploy.yml`). Na 1 à 2 minuten staat de nieuwe versie online.
+**Testversie (GitHub Pages):** elke push naar `master` wordt door GitHub Actions gebouwd
+en op GitHub Pages gezet (`.github/workflows/deploy.yml`). Na 1 à 2 minuten staat de nieuwe
+versie online.
+
+**art-quake.com (Vimexx):** `npm run build:vimexx` bouwt de site zonder pad in `build-vimexx/`,
+met een `.htaccess` voor nette adressen (zie `scripts/vimexx.htaccess`). Upload de inhoud van
+die map naar `domains/art-quake.com/public_html` (DirectAdmin, File Manager: als zip uploaden
+en uitpakken). Activiteiten en artiesten uit het dashboard staan meteen live; alleen
+wijzigingen in de code vragen een nieuwe upload.
 
 ## Waar staat wat
 

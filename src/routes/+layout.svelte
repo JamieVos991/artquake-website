@@ -47,7 +47,7 @@
     }
     ctaVersturen = true;
     try {
-      const res = await fetch('https://formsubmit.co/ajax/jamievos100@gmail.com', {
+      const res = await fetch('https://formsubmit.co/ajax/info@art-quake.com', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({
