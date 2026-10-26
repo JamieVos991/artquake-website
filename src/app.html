@@ -24,11 +24,12 @@
 				href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100..900;1,100..900&family=Space+Mono:wght@400;700&display=swap"
 			/>
 		</noscript>
-		<!-- Privacy-friendly analytics by Plausible. Niet op de crewpagina's: daar
-		     staat de inlog van de crew en draait dus geen script van buiten. -->
+		<!-- Privacy-friendly analytics by Plausible. Niet op de crewpagina's (daar
+		     staat de inlog van de crew) en niet op /annuleren (daar staat de geheime
+		     annuleercode in de link): daar draait geen script van buiten. -->
 		<script>
 			window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
-			if (!/^\/(login|dashboard|reserveren)(\/|\.html)?$/.test(location.pathname)) {
+			if (!/^\/(login|dashboard|reserveren|annuleren)(\/|\.html)?$/.test(location.pathname)) {
 				var s = document.createElement('script');
 				s.async = true;
 				s.src = 'https://plausible.io/js/pa-L1_Ek66ILEgM7kmrI214g.js';

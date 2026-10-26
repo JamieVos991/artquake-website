@@ -15,7 +15,7 @@
     serverTimestamp,
   } from "firebase/firestore";
   import { db, auth } from "$lib/firebase.js";
-  import { stuurReserveringMail, stuurVerificatiecode, mailActief } from "$lib/reserveringMail.js";
+  import { stuurReserveringMail, stuurVerificatiecode, mailActief, nieuweAnnuleerCode } from "$lib/reserveringMail.js";
 
   // alleen op art-quake.com gaan er mails uit (verificatiecode en bevestiging)
   const mailAan = mailActief();
@@ -128,7 +128,7 @@
 
   let bezetteTijdvakken = $derived(
     bestaandeReserveringen
-      .filter((r) => r.datum === datum && r.starttijd && r.eindtijd)
+      .filter((r) => r.datum === datum && r.starttijd && r.eindtijd && !r.geannuleerd)
       .map((r) => ({ start: r.starttijd, eind: r.eindtijd }))
   );
 
@@ -211,11 +211,13 @@
       starttijd,
       eindtijd,
     };
+    const annuleerCode = nieuweAnnuleerCode();
     const ref = await addDoc(collection(db, "reserveringen"), {
       ...gegevens,
+      annuleerCode,
       aangemaaktOp: serverTimestamp(),
     });
-    gemaakteReservering = { id: ref.id, ...gegevens };
+    gemaakteReservering = { id: ref.id, annuleerCode, ...gegevens };
     geannuleerd = false;
     done = true;
     // De reservering zelf staat al vast in Firebase; als alleen de mail

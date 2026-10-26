@@ -17,7 +17,7 @@
   import { uploadFoto, verwijderFoto } from "$lib/fotoUpload.js";
   import { locatieSuggesties, standaardLocatie, standaardPrijs } from "$lib/data/agendaTekst.js";
   import { agendaPoster } from "$lib/data/agendaPosters.js";
-  import { stuurReserveringMail, studioNamen } from "$lib/reserveringMail.js";
+  import { stuurReserveringMail, studioNamen, nieuweAnnuleerCode } from "$lib/reserveringMail.js";
   import { artiestFotoPositie } from "$lib/data/fotoPosities.js";
   import { artiestSocials } from "$lib/data/socials.js";
   import { agendaFotoUitsneden, agendaFotoPositie } from "$lib/data/agendaFoto.js";
@@ -104,7 +104,9 @@
 
   async function verwijderReservering(r) {
     const naam = r.naam || "deze reservering";
-    const metMail = r.email ? `\n\n${r.email} krijgt een mail dat de reservering is verwijderd.` : "";
+    // zelf geannuleerd: die persoon weet het al, dus geen mail
+    const mailen = r.email && !r.geannuleerd;
+    const metMail = mailen ? `\n\n${r.email} krijgt een mail dat de reservering is verwijderd.` : "";
     if (
       !confirm(
         `Reservering van ${naam} (${formatDatum(r.datum)}, ${r.starttijd}–${r.eindtijd}) verwijderen?${metMail}`
@@ -115,7 +117,7 @@
     try {
       await deleteDoc(doc(db, "reserveringen", r.id));
       if (reserveringBewerkId === r.id) leegReserveringFormulier();
-      if (r.email && !(await stuurReserveringMail(r, "verwijderd"))) {
+      if (mailen && !(await stuurReserveringMail(r, "verwijderd"))) {
         alert(`De reservering is verwijderd, maar de mail naar ${r.email} kon niet worden verstuurd.`);
       }
     } catch (err) {
@@ -183,6 +185,7 @@
     const overlap = reserveringen.find(
       (r) =>
         r.id !== reserveringBewerkId &&
+        !r.geannuleerd &&
         r.studio === rStudio &&
         r.datum === rDatum &&
         rStart < r.eindtijd &&
@@ -201,12 +204,16 @@
       starttijd: rStart,
       eindtijd: rEind,
     };
+    // oudere reserveringen hebben nog geen annuleercode: dan nu een maken
+    const annuleerCode =
+      reserveringen.find((r) => r.id === reserveringBewerkId)?.annuleerCode ?? nieuweAnnuleerCode();
     try {
       await updateDoc(doc(db, "reserveringen", reserveringBewerkId), {
         ...velden,
+        annuleerCode,
         gewijzigdOp: serverTimestamp(),
       });
-      const gemaild = await stuurReserveringMail(velden, "gewijzigd");
+      const gemaild = await stuurReserveringMail({ id: reserveringBewerkId, annuleerCode, ...velden }, "gewijzigd");
       reserveringGelukt = gemaild
         ? `Opgeslagen. ${velden.email} heeft een mail met de nieuwe gegevens gekregen.`
         : "Opgeslagen, maar de mail kon niet worden verstuurd.";
@@ -763,12 +770,16 @@
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   }
 
-  let dezeWeek = $derived(reserveringen.filter((r) => isDezeWeek(r.datum)));
+  // zelf geannuleerd (via de link in de mail) telt nergens meer mee en staat
+  // onderaan, tot de crew 'm verwijdert
+  let actieveReserveringen = $derived(reserveringen.filter((r) => !r.geannuleerd));
+  let dezeWeek = $derived(actieveReserveringen.filter((r) => isDezeWeek(r.datum)));
   let dezeWeekGeweest = $derived(dezeWeek.filter(reserveringIsAfgelopen).length);
   // eerst wat nog komt (vroegste bovenaan), daarna wat al geweest is
   let reserveringenOpVolgorde = $derived([
-    ...reserveringen.filter((r) => !reserveringIsAfgelopen(r)).reverse(),
-    ...reserveringen.filter(reserveringIsAfgelopen),
+    ...actieveReserveringen.filter((r) => !reserveringIsAfgelopen(r)).reverse(),
+    ...actieveReserveringen.filter(reserveringIsAfgelopen),
+    ...reserveringen.filter((r) => r.geannuleerd),
   ]);
   let reserveringZoek = $state("");
   let gezochteReserveringen = $derived(
@@ -777,7 +788,7 @@
     )
   );
   let komendeReserveringen = $derived(
-    reserveringen.filter((r) => !reserveringIsAfgelopen(r)).length
+    actieveReserveringen.filter((r) => !reserveringIsAfgelopen(r)).length
   );
   let komendeAgenda = $derived(
     agendaItems.filter((a) => a.date && a.date >= vandaagAlsDatum()).length
@@ -882,13 +893,13 @@
         <article class="db-kaart db-kaart-donker">
           <span class="db-label db-label-oranje">Altijd</span>
           {#if reserveringenGeladen}
-            <h2>{reserveringen.length} {reserveringen.length === 1 ? "reservering" : "reserveringen"} in totaal</h2>
+            <h2>{actieveReserveringen.length} {actieveReserveringen.length === 1 ? "reservering" : "reserveringen"} in totaal</h2>
           {:else}
             {@render skeletKop()}
           {/if}
           <div class="db-voortgang">
-            <p><span>Nog te komen</span><span>{komendeReserveringen}/{reserveringen.length}</span></p>
-            <div class="db-balk"><i style:width="{reserveringen.length ? (komendeReserveringen / reserveringen.length) * 100 : 0}%"></i></div>
+            <p><span>Nog te komen</span><span>{komendeReserveringen}/{actieveReserveringen.length}</span></p>
+            <div class="db-balk"><i style:width="{actieveReserveringen.length ? (komendeReserveringen / actieveReserveringen.length) * 100 : 0}%"></i></div>
           </div>
         </article>
 
@@ -946,26 +957,30 @@
             </div>
             <ul class="db-lijst">
               {#each gezochteReserveringen as r (r.id)}
-                {@const geweest = reserveringIsAfgelopen(r)}
+                {@const geweest = r.geannuleerd || reserveringIsAfgelopen(r)}
                 <li class="db-regel" class:is-geweest={geweest} class:is-bewerkt={reserveringBewerkId === r.id}>
                   <span class="db-regel-wie">
                     <span>
                       <strong>{r.naam ?? "–"}</strong>
-                      <span>{studioLabel(r.studio)}{geweest ? " · afgelopen" : ""}</span>
+                      <span>{studioLabel(r.studio)}{r.geannuleerd ? " · zelf geannuleerd" : geweest ? " · afgelopen" : ""}</span>
                     </span>
                   </span>
                   <span class="db-regel-datum">{formatDatum(r.datum)}</span>
                   <span class="db-regel-tijd"
                     >{r.starttijd ?? "–"}{r.eindtijd ? `–${r.eindtijd}` : ""}</span
                   >
-                  <button
-                    type="button"
-                    class="db-verwijder db-bewerk"
-                    onclick={() => bewerkReservering(r)}
-                    aria-label="Reservering van {r.naam ?? 'onbekend'} bewerken"
-                  >
-                    Bewerk
-                  </button>
+                  {#if r.geannuleerd}
+                    <span></span>
+                  {:else}
+                    <button
+                      type="button"
+                      class="db-verwijder db-bewerk"
+                      onclick={() => bewerkReservering(r)}
+                      aria-label="Reservering van {r.naam ?? 'onbekend'} bewerken"
+                    >
+                      Bewerk
+                    </button>
+                  {/if}
                   <button
                     type="button"
                     class="db-verwijder"

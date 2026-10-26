@@ -25,6 +25,12 @@ export async function stuurVerificatiecode(naar, naam, code) {
 	await mailViaServer({ soort: "code", naam, email: naar, code });
 }
 
+// Geheime code waarmee iemand via de link in de mail zelf kan annuleren
+// (zie /annuleren en magZelfAnnuleren in firestore.rules).
+export function nieuweAnnuleerCode() {
+	return Array.from(crypto.getRandomValues(new Uint8Array(16)), (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
 export const studioNamen = {
 	oefen: "Oefenruimte",
 	opname: "Opnamestudio",
@@ -33,7 +39,9 @@ export const studioNamen = {
 };
 
 // Soorten mail: "bevestigd", "gewijzigd" en "verwijderd"; de server heeft
-// per soort een eigen template (zie de map email-templates).
+// per soort een eigen template (zie de map email-templates). Met id en
+// annuleerCode in de reservering krijgen "bevestigd" en "gewijzigd" een link
+// om zelf te annuleren.
 // Stuurt de mail en geeft terug of dat gelukt is (true/false). Gooit nooit,
 // zodat een mislukte mail de reservering zelf niet in de weg zit.
 export async function stuurReserveringMail(reservering, soort = "bevestigd") {
@@ -52,6 +60,8 @@ export async function stuurReserveringMail(reservering, soort = "bevestigd") {
 			}),
 			starttijd: reservering.starttijd,
 			eindtijd: reservering.eindtijd,
+			id: reservering.id,
+			annuleerCode: reservering.annuleerCode,
 		});
 		return true;
 	} catch {

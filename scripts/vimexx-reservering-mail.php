@@ -95,6 +95,14 @@ if ($soort === 'code') {
 	if (!preg_match('/^[\p{L}\d ,.]{6,60}$/u', $datum)) antwoord(422, false, 'Ongeldige datum');
 	if (!preg_match('/^\d{2}:\d{2}$/', $start) || !preg_match('/^\d{2}:\d{2}$/', $eind)) antwoord(422, false, 'Ongeldige tijd');
 	$waarden += ['studio' => $studio, 'datum' => $datum, 'starttijd' => $start, 'eindtijd' => $eind];
+	// link om zelf te annuleren (pagina /annuleren); alleen bij bevestigd en
+	// gewijzigd, en alleen met een geldig document-ID en annuleercode
+	$id = (string)($invoer['id'] ?? '');
+	$annuleerCode = (string)($invoer['annuleerCode'] ?? '');
+	if (in_array($soort, ['bevestigd', 'gewijzigd'], true)
+		&& preg_match('/^[A-Za-z0-9]{20}$/', $id) && preg_match('/^[a-f0-9]{32}$/', $annuleerCode)) {
+		$waarden['annuleerlink'] = "https://art-quake.com/annuleren#$id.$annuleerCode";
+	}
 	// het bevestigingstemplate is gedeeld en krijgt kop en tekst als variabelen
 	if ($soort === 'bevestigd') {
 		$waarden += [
@@ -114,6 +122,10 @@ if ($soort === 'code') {
 // ── mail opbouwen ──
 $TEMPLATES = __TEMPLATES__;
 $html = $TEMPLATES[$soort];
+// het annuleerstuk alleen tonen als er een link is
+$html = isset($waarden['annuleerlink'])
+	? str_replace(['<!--annuleren-->', '<!--/annuleren-->'], '', $html)
+	: preg_replace('#<!--annuleren-->.*?<!--/annuleren-->#s', '', $html);
 foreach ($waarden as $sleutel => $waarde) {
 	$html = str_replace('{{' . $sleutel . '}}', htmlspecialchars($waarde, ENT_QUOTES, 'UTF-8'), $html);
 }

@@ -32,6 +32,21 @@ service cloud.firestore {
       allow write: if isBeheerder();
     }
 
+    // Annuleren via de link in de bevestigingsmail (pagina /annuleren), zonder
+    // inloggen. De link bevat de geheime annuleerCode van de reservering; de
+    // bezoeker stuurt die mee als bevestigCode en mag dan alleen geannuleerd
+    // op true zetten. Lezen kan de bezoeker de reservering niet.
+    function magZelfAnnuleren() {
+      return resource.data.get('annuleerCode', '') is string
+        && resource.data.get('annuleerCode', '').size() >= 32
+        && resource.data.get('geannuleerd', false) == false
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['geannuleerd', 'geannuleerdOp', 'bevestigCode'])
+        && request.resource.data.geannuleerd == true
+        && request.resource.data.geannuleerdOp == request.time
+        && request.resource.data.bevestigCode == resource.data.annuleerCode;
+    }
+
     // Reserveringen bevatten namen en e-mailadressen. Reserveren kan op dit
     // moment alleen de crew (de pagina /reserveren vraagt om in te loggen),
     // dus alles alleen voor beheerders.
@@ -42,7 +57,8 @@ service cloud.firestore {
     // e-mailadressen openbaar te maken (bv. een aparte collectie met alleen
     // studio, datum en tijden).
     match /reserveringen/{id} {
-      allow read, update, delete: if isBeheerder();
+      allow read, delete: if isBeheerder();
+      allow update: if isBeheerder() || magZelfAnnuleren();
       allow create: if isBeheerder()
                     && request.resource.data.keys().hasAll(
                          ['studio', 'naam', 'email', 'datum', 'starttijd', 'eindtijd']

@@ -3,4 +3,4 @@
 export const SITE_DOMEIN = "https://art-quake.com";
 
 // Pagina's die niet in zoekmachines horen (alleen voor de crew)
-export const nietIndexeren = ["/login", "/dashboard", "/reserveren", "/styleguide"];
+export const nietIndexeren = ["/login", "/dashboard", "/reserveren", "/annuleren", "/styleguide"];
