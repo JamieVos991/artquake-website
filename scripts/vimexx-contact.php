@@ -1,8 +1,7 @@
 <?php
 // Contactformulier van art-quake.com: stuurt het bericht direct via de mailserver
-// van Vimexx naar info@art-quake.com. Wordt door npm run build:vimexx als
-// contact.php in build-vimexx/ gezet. (Op GitHub Pages werkt PHP niet; daar
-// gebruikt de site FormSubmit.)
+// van Vimexx naar info@art-quake.com. Wordt door npm run build als
+// contact.php in build-vimexx/ gezet.
 
 const ONTVANGER = 'info@art-quake.com';
 const AFZENDER = 'info@art-quake.com'; // eigen domein, anders belandt het in spam

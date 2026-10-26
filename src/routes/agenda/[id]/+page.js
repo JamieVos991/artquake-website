@@ -3,7 +3,7 @@ import { haalCollectieOp, haalDocumentOp } from "$lib/publiekeData.js";
 
 // Elke activiteit die bij het bouwen bestaat, krijgt een eigen pagina (goed voor
 // Google). Een activiteit die later in het dashboard wordt toegevoegd, werkt ook:
-// GitHub Pages stuurt die via 404.html naar de site, die de pagina dan zelf laadt.
+// de server stuurt die via 404.html naar de site, die de pagina dan zelf laadt.
 export const prerender = true;
 
 export async function entries() {

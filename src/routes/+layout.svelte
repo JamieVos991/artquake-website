@@ -4,7 +4,7 @@
   import { base } from '$app/paths';
   import HamburgerMenu from '$lib/components/HamburgerMenu.svelte';
   import { diensten } from '$lib/data/diensten.js';
-  import { navigatie } from '$lib/data/navigatie.js';
+  import { navigatie, crewPaginas } from '$lib/data/navigatie.js';
   import { bewaarInvoer } from '$lib/bewaardeInvoer.svelte.js';
 
   let { children } = $props();
@@ -49,15 +49,9 @@
     }
     ctaVersturen = true;
     try {
-      // Op art-quake.com verstuurt de eigen server de mail (contact.php, snel).
-      // Elders (GitHub Pages, lokaal) kan dat niet en gaat het via FormSubmit;
-      // de code daar staat voor info@art-quake.com, zo staat het mailadres
-      // niet leesbaar in de code (minder spam).
-      const eigenServer = location.hostname.endsWith('art-quake.com');
-      const adres = eigenServer
-        ? '/contact.php'
-        : 'https://formsubmit.co/ajax/08c4ed28aca43b4ae4d0b9f0a3fc1867';
-      const res = await fetch(adres, {
+      // De server van art-quake.com verstuurt de mail (contact.php). Lokaal
+      // (npm run dev) draait geen PHP en lukt versturen dus niet.
+      const res = await fetch('/contact.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({
@@ -67,12 +61,10 @@
           bericht: ctaBericht,
           // het bericht wordt weggegooid als _honey is ingevuld
           _honey: ctaHoney,
-          _subject: `Nieuw bericht via art-quake.com van ${ctaNaam}`,
         }),
       });
       const data = await res.json();
-      // FormSubmit antwoordt met "true" als tekst, contact.php met true
-      if (!res.ok || String(data.success) !== 'true') throw new Error(data.message || 'Versturen mislukt');
+      if (!res.ok || data.success !== true) throw new Error(data.message || 'Versturen mislukt');
       ctaNaam = '';
       ctaEmail = '';
       ctaTelefoon = '';
@@ -174,7 +166,7 @@
     <h3 class="footer-heading heading-orange">DOEN</h3>
     <ul>
       {#each navigatie.filter((n) => n.href !== "/") as n}
-        <li><a href="{base}{n.href}">{n.label}</a></li>
+        <li><a href="{base}{n.href}" data-sveltekit-reload={crewPaginas.includes(n.href) || undefined}>{n.label}</a></li>
       {/each}
     </ul>
   </nav>

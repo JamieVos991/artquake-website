@@ -62,8 +62,10 @@
       Plausible Analytics: anonieme bezoekstatistieken, zonder cookies en
       zonder persoonsgegevens, met servers in de EU
     </li>
-    <li>EmailJS: het versturen van de verificatiecode en bevestigingsmail</li>
-    <li>Vimexx: de hosting van de website en het versturen van berichten uit het contactformulier</li>
+    <li>
+      Vimexx: de hosting van de website en het versturen van berichten uit het
+      contactformulier en van de mails over je reservering
+    </li>
     <li>Google Fonts: het laden van de lettertypes op de website</li>
   </ul>
 

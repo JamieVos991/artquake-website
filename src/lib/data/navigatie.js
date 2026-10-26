@@ -10,3 +10,7 @@ export const navigatie = [
 	{ label: "Contact", href: "/#doe-mee", info: "VRAAG HET GEWOON. SERIEUS.", foto: "schrijf" },
 	{ label: "Login", href: "/login", info: "VOOR CREW EN BEHEERDERS", foto: "zing" },
 ];
+
+// De crewpagina's laden helemaal opnieuw (data-sveltekit-reload), zodat het
+// Plausible-script van de openbare pagina's daar niet meedraait (zie app.html).
+export const crewPaginas = ["/login", "/reserveren", "/dashboard"];

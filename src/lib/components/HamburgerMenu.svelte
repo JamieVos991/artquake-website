@@ -7,7 +7,7 @@
   import { onMount } from "svelte";
   import { haalCollectieOp } from "$lib/publiekeData.js";
   import { isCrewBrowser, markeerCrewBrowser } from "$lib/crew.js";
-  import { navigatie } from "$lib/data/navigatie.js";
+  import { navigatie, crewPaginas } from "$lib/data/navigatie.js";
   import { agendaPoster } from "$lib/data/agendaPosters.js";
   import dansFoto from "$lib/assets/fotos/hero/meiden-die-dansen.avif";
   import zingFoto from "$lib/assets/fotos/hero/zangeres-met-gitaar.avif";
@@ -253,6 +253,7 @@
                 <!-- svelte-ignore a11y_autofocus -->
                 <a
                   href="{base}{it.href}"
+                  data-sveltekit-reload={crewPaginas.includes(it.href) || undefined}
                   autofocus={i === 0}
                   onmouseenter={() => (hoverIndex = i)}
                   onfocus={() => (hoverIndex = i)}

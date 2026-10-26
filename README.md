@@ -1,11 +1,11 @@
 # Artquake
 
 Website van Stichting Villa Artquake in Heerhugowaard: jong talent laat zich zien en horen.
-Live op https://art-quake.com (hosting bij Vimexx) en als testversie op
-https://jamievos991.github.io/artquake-website/
+Live op https://art-quake.com (hosting bij Vimexx).
 
-Gebouwd met SvelteKit (Svelte 5) als statische site op GitHub Pages, met Firebase voor de
-gegevens en de inlog van de crew.
+Gebouwd met SvelteKit (Svelte 5) als statische site, met Firebase voor de gegevens en de
+inlog van de crew. Het contactformulier en de reserveringsmails lopen via PHP-scripts op
+de server van Vimexx; lokaal (`npm run dev`) gaan er dus geen mails uit.
 
 ## Starten
 
@@ -19,11 +19,7 @@ Zie je een wijziging niet terug? Stop de dev-server (`Ctrl + C`) en start hem op
 
 ## Live zetten
 
-**Testversie (GitHub Pages):** elke push naar `master` wordt door GitHub Actions gebouwd
-en op GitHub Pages gezet (`.github/workflows/deploy.yml`). Na 1 à 2 minuten staat de nieuwe
-versie online.
-
-**art-quake.com (Vimexx):** `npm run build:vimexx` bouwt de site zonder pad in `build-vimexx/`,
+`npm run build` bouwt de site in `build-vimexx/`,
 met een `.htaccess` voor nette adressen (zie `scripts/vimexx.htaccess`). Upload de inhoud van
 die map naar `domains/art-quake.com/public_html` (DirectAdmin, File Manager: als zip uploaden
 en uitpakken). Activiteiten en artiesten uit het dashboard staan meteen live; alleen
@@ -43,8 +39,8 @@ wijzigingen in de code vragen een nieuwe upload.
 | `src/lib/data/site.js` | Domein voor sitemap en robots.txt |
 | `src/lib/publiekeData.js` | Agenda en artiesten lezen zonder de Firebase-SDK |
 | `src/lib/firebase.js` | Firebase voor de crewpagina's |
-| `src/lib/email-config.js` | EmailJS voor reserveringsmails |
-| `email-templates/` | HTML voor de EmailJS-templates |
+| `src/lib/reserveringMail.js` | Reserveringsmails via `reservering-mail.php` (alleen op art-quake.com) |
+| `email-templates/` | HTML van de reserveringsmails (wordt in `reservering-mail.php` geplakt) |
 | `firestore.rules`, `storage.rules` | Beveiligingsregels van Firebase |
 
 ## Beheerders

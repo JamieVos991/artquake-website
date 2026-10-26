@@ -1,9 +1,7 @@
 import adapter from '@sveltejs/adapter-static';
 
-// Twee plekken voor dezelfde site:
-// - npm run build         -> build/         voor jamievos991.github.io/artquake-website
-// - npm run build:vimexx  -> build-vimexx/  voor art-quake.com (hosting bij Vimexx)
-const eigenDomein = process.env.ARTQUAKE_DOMEIN === 'eigen';
+// npm run build bouwt de site voor art-quake.com (hosting bij Vimexx) in
+// build-vimexx/, zie scripts/build-vimexx.js.
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -13,10 +11,10 @@ const config = {
 			filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 	},
 	kit: {
-		// statische site voor GitHub Pages; onbekende pagina's krijgen 404.html
+		// statische site; onbekende pagina's krijgen 404.html (zie .htaccess)
 		adapter: adapter({
-			pages: eigenDomein ? 'build-vimexx' : 'build',
-			assets: eigenDomein ? 'build-vimexx' : 'build',
+			pages: 'build-vimexx',
+			assets: 'build-vimexx',
 			fallback: '404.html'
 		}),
 		prerender: {
@@ -24,11 +22,6 @@ const config = {
 			// Firestore gehaald. Lukt dat even niet, dan niet de hele build laten
 			// mislukken: die pagina's werken dan via 404.html (zie agenda/[id]/+page.js).
 			handleUnseenRoutes: 'ignore'
-		},
-		paths: {
-			// op art-quake.com staat de site in de hoofdmap, op GitHub Pages onder
-			// /artquake-website (lokaal altijd zonder pad)
-			base: process.env.NODE_ENV === 'production' && !eigenDomein ? '/artquake-website' : ''
 		}
 	}
 };

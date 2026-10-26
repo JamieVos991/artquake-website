@@ -15,15 +15,10 @@
     serverTimestamp,
   } from "firebase/firestore";
   import { db, auth } from "$lib/firebase.js";
-  import emailjs from "@emailjs/browser";
-  import {
-    EMAILJS_SERVICE_ID,
-    EMAILJS_TEMPLATE_ID_CODE,
-    EMAILJS_PUBLIC_KEY,
-    codeVerificatieActief,
-    bevestigingsmailActief,
-  } from "$lib/email-config.js";
-  import { stuurReserveringMail } from "$lib/reserveringMail.js";
+  import { stuurReserveringMail, stuurVerificatiecode, mailActief } from "$lib/reserveringMail.js";
+
+  // alleen op art-quake.com gaan er mails uit (verificatiecode en bevestiging)
+  const mailAan = mailActief();
 
   // Reserveren is tijdelijk alleen voor ingelogde crew: wie niet is
   // ingelogd gaat naar de inlogpagina en komt daarna hier terug.
@@ -42,14 +37,6 @@
     return String(Math.floor(100000 + Math.random() * 900000));
   }
 
-  async function stuurVerificatiecode(naar, naam, code) {
-    await emailjs.send(
-      EMAILJS_SERVICE_ID,
-      EMAILJS_TEMPLATE_ID_CODE,
-      { naam, email: naar, code },
-      { publicKey: EMAILJS_PUBLIC_KEY }
-    );
-  }
 
   const studios = [
     { id: "oefen", label: "OEFEN\nRUIMTE", bg: "purple" },
@@ -93,7 +80,7 @@
   // meer over zijn voor een eindtijd binnen de openingstijden.
   const alleStarttijden = alleTijdslots.filter((t) => t !== SLUIT_TIJD);
 
-  const totaalStappen = codeVerificatieActief ? 4 : 3;
+  const totaalStappen = mailAan ? 4 : 3;
 
   let step = $state(1); // 1=studio, 2=gegevens, 3=datum, 4=code
   let selectedStudio = $state(null);
@@ -232,7 +219,7 @@
     geannuleerd = false;
     done = true;
     // De reservering zelf staat al vast in Firebase; als alleen de mail
-    // mislukt (bv. EmailJS-quota) laten we de gebruiker dat niet merken.
+    // mislukt laten we de gebruiker dat niet merken.
     stuurReserveringMail(gemaakteReservering, "bevestigd");
   }
 
@@ -248,7 +235,7 @@
 
     submitting = true;
     try {
-      if (!codeVerificatieActief) {
+      if (!mailAan) {
         await maakReserveringAan();
       } else {
         const code = genereerCode();
@@ -424,7 +411,7 @@
         <p class="confirm-tag">GELUKT</p>
         <h1 class="confirm-title">RESERVERING<br />ONTVANGEN.</h1>
         <p class="confirm-text">
-          {#if bevestigingsmailActief}
+          {#if mailAan}
             We sturen je een bevestiging op <strong>{email}</strong>. Tot dan!
           {:else}
             Je reservering staat vast. Tot dan!
@@ -587,7 +574,7 @@
             <button type="submit" class="btn-next" disabled={submitting}>
               {#if submitting}
                 <span class="spinner"></span> BEZIG…
-              {:else if codeVerificatieActief}
+              {:else if mailAan}
                 VERSTUUR CODE
               {:else}
                 RESERVEER NU

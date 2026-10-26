@@ -12,13 +12,14 @@ service firebase.storage {
     }
 
     // Iedereen mag de foto's zien (ze staan op de website). Uploaden mag
-    // alleen een beheerder, alleen afbeeldingen en maximaal 10 MB.
+    // alleen een beheerder, alleen gewone foto's (geen SVG: daar kan code in)
+    // en maximaal 10 MB.
     match /{map}/{bestand} {
       allow read: if true;
       allow create, update: if isBeheerder()
                    && map in ['agenda-images', 'artiesten-images', 'crew-images']
                    && request.resource.size < 10 * 1024 * 1024
-                   && request.resource.contentType.matches('image/.*');
+                   && request.resource.contentType.matches('image/(jpeg|png|webp|avif|gif|heic|heif)');
       allow delete: if isBeheerder();
     }
 

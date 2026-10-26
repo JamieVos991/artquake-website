@@ -24,11 +24,17 @@
 				href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100..900;1,100..900&family=Space+Mono:wght@400;700&display=swap"
 			/>
 		</noscript>
-		<!-- Privacy-friendly analytics by Plausible -->
-		<script async src="https://plausible.io/js/pa-L1_Ek66ILEgM7kmrI214g.js"></script>
+		<!-- Privacy-friendly analytics by Plausible. Niet op de crewpagina's: daar
+		     staat de inlog van de crew en draait dus geen script van buiten. -->
 		<script>
 			window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
-			plausible.init()
+			if (!/^\/(login|dashboard|reserveren)(\/|\.html)?$/.test(location.pathname)) {
+				var s = document.createElement('script');
+				s.async = true;
+				s.src = 'https://plausible.io/js/pa-L1_Ek66ILEgM7kmrI214g.js';
+				document.head.appendChild(s);
+				plausible.init();
+			}
 		</script>
 		%sveltekit.head%
 	</head>

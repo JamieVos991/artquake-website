@@ -1,12 +1,29 @@
-import emailjs from "@emailjs/browser";
-import {
-	EMAILJS_SERVICE_ID,
-	EMAILJS_TEMPLATE_ID_CONFIRM,
-	EMAILJS_TEMPLATE_ID_GEWIJZIGD,
-	EMAILJS_TEMPLATE_ID_VERWIJDERD,
-	EMAILJS_PUBLIC_KEY,
-	bevestigingsmailActief,
-} from "$lib/email-config.js";
+import { auth } from "$lib/firebaseApp.js";
+
+// Reserveringsmails verstuurt de eigen server op art-quake.com
+// (reservering-mail.php, zie scripts/vimexx-reservering-mail.php). Lokaal
+// (npm run dev) draait geen PHP: daar gaan er geen mails uit en slaat het
+// boekingsformulier de verificatiecode over.
+export const mailActief = () => typeof location !== "undefined" && location.hostname.endsWith("art-quake.com");
+
+// De server mailt alleen voor ingelogde crew: het inlogbewijs gaat mee.
+async function mailViaServer(gegevens) {
+	const token = await auth.currentUser?.getIdToken();
+	if (!token) throw new Error("Niet ingelogd");
+	const res = await fetch("/reservering-mail.php", {
+		method: "POST",
+		headers: { "Content-Type": "application/json", Accept: "application/json" },
+		body: JSON.stringify({ ...gegevens, token }),
+	});
+	const data = await res.json().catch(() => ({}));
+	if (!res.ok || data.success !== true) throw new Error(data.message || "Versturen mislukt");
+}
+
+// Mail met de 6-cijferige code; gooit een fout als het niet lukt.
+export async function stuurVerificatiecode(naar, naam, code) {
+	if (!mailActief()) throw new Error("Mail versturen kan alleen op art-quake.com");
+	await mailViaServer({ soort: "code", naam, email: naar, code });
+}
 
 export const studioNamen = {
 	oefen: "Oefenruimte",
@@ -15,64 +32,27 @@ export const studioNamen = {
 	atelier: "Atelier",
 };
 
-// Soorten mail: "bevestigd", "gewijzigd" en "verwijderd". Op het gratis
-// plan van EmailJS (twee templates, de andere is de verificatiecode) gaan
-// ze allemaal via het bevestigingstemplate; kop en tekst gaan dan als
-// variabelen mee: {{onderwerp}}, {{label}}, {{titel}}, {{intro}}.
-// Zie de map email-templates.
-const teksten = {
-	bevestigd: {
-		onderwerp: "Reservering bevestigd",
-		label: "GELUKT",
-		titel: "Reservering bevestigd.",
-		intro: "je reservering staat vast:",
-	},
-	gewijzigd: {
-		onderwerp: "Je reservering is gewijzigd",
-		label: "GEWIJZIGD",
-		titel: "Je reservering is gewijzigd.",
-		intro: "we hebben je reservering aangepast. Dit zijn de nieuwe gegevens:",
-	},
-	verwijderd: {
-		onderwerp: "Je reservering is verwijderd",
-		label: "VERWIJDERD",
-		titel: "Je reservering is verwijderd.",
-		intro: "deze reservering gaat helaas niet door:",
-	},
-};
-
-// Een eigen template per soort als dat is ingesteld in email-config.js,
-// anders het gedeelde bevestigingstemplate (met de teksten hierboven).
-const templatePerSoort = {
-	bevestigd: EMAILJS_TEMPLATE_ID_CONFIRM,
-	gewijzigd: EMAILJS_TEMPLATE_ID_GEWIJZIGD || EMAILJS_TEMPLATE_ID_CONFIRM,
-	verwijderd: EMAILJS_TEMPLATE_ID_VERWIJDERD || EMAILJS_TEMPLATE_ID_CONFIRM,
-};
-
+// Soorten mail: "bevestigd", "gewijzigd" en "verwijderd"; de server heeft
+// per soort een eigen template (zie de map email-templates).
 // Stuurt de mail en geeft terug of dat gelukt is (true/false). Gooit nooit,
 // zodat een mislukte mail de reservering zelf niet in de weg zit.
 export async function stuurReserveringMail(reservering, soort = "bevestigd") {
-	if (!bevestigingsmailActief || !reservering.email) return false;
+	if (!reservering.email || !mailActief()) return false;
 	try {
-		await emailjs.send(
-			EMAILJS_SERVICE_ID,
-			templatePerSoort[soort],
-			{
-				...teksten[soort],
-				naam: reservering.naam,
-				email: reservering.email,
-				studio: studioNamen[reservering.studio] ?? reservering.studio,
-				datum: new Date(`${reservering.datum}T00:00`).toLocaleDateString("nl-NL", {
-					weekday: "long",
-					day: "numeric",
-					month: "long",
-					year: "numeric",
-				}),
-				starttijd: reservering.starttijd,
-				eindtijd: reservering.eindtijd,
-			},
-			{ publicKey: EMAILJS_PUBLIC_KEY }
-		);
+		await mailViaServer({
+			soort,
+			naam: reservering.naam,
+			email: reservering.email,
+			studio: studioNamen[reservering.studio] ?? reservering.studio,
+			datum: new Date(`${reservering.datum}T00:00`).toLocaleDateString("nl-NL", {
+				weekday: "long",
+				day: "numeric",
+				month: "long",
+				year: "numeric",
+			}),
+			starttijd: reservering.starttijd,
+			eindtijd: reservering.eindtijd,
+		});
 		return true;
 	} catch {
 		return false;

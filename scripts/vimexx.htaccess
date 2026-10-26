@@ -1,5 +1,5 @@
 # Instellingen voor art-quake.com op de Apache-server van Vimexx.
-# Wordt door npm run build:vimexx in build-vimexx/ gezet.
+# Wordt door npm run build in build-vimexx/ gezet.
 
 Options -MultiViews -Indexes
 DirectoryIndex index.html
@@ -24,6 +24,17 @@ ErrorDocument 404 /404.html
 # bestanden in _app/immutable hebben een hash in de naam en veranderen nooit:
 # lang bewaren. Pagina's altijd opnieuw controleren, zodat updates meteen te zien zijn.
 <IfModule mod_headers.c>
+  # Beveiliging: alleen via https (een jaar onthouden), niet in een frame van een
+  # andere site, en scripts en verbindingen alleen naar de diensten die de site
+  # gebruikt (Firebase/Google, Plausible). Komt er een nieuwe dienst bij, zet
+  # die dan ook hier in script-src of connect-src.
+  Header always set Strict-Transport-Security "max-age=31536000"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "DENY"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+  Header always set Content-Security-Policy "script-src 'self' 'unsafe-inline' https://plausible.io; connect-src 'self' https://*.googleapis.com https://plausible.io; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+
   <If "%{REQUEST_URI} =~ m#^/_app/immutable/#">
     Header set Cache-Control "public, max-age=31536000, immutable"
   </If>
