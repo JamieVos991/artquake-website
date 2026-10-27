@@ -57,9 +57,11 @@ Alles staat in `src/lib/assets/`. Namen: kleine letters, woorden met streepjes, 
 ```
 fotos/
   hero/                  wisselende foto's bovenaan de homepage (en in het menu)
+  hero/mobiel/           staande uitsnede van elke hero-foto voor telefoons (zelfde naam)
   crew/                  één foto per crewlid, bijv. mado.avif
-  pand/                  foto van het pand
+  pand/                  foto van het pand, en het eerste beeld van de rondleiding (poster)
   diensten/<slug>/       galerijfoto's van een dienstpagina, bijv. diensten/exposities/
+  diensten/<slug>/klein/ dezelfde foto's 480 px breed, voor telefoons
 videos/
   diensten/<slug>.mp4            video op de dienstpagina
   diensten/preview/<slug>.mp4    korte clip voor het blok op de homepage
@@ -71,4 +73,8 @@ videos/
 - Een dienst krijgt vanzelf een video als er een bestand met de slug als naam staat.
   Maak er ook een preview-clip (8 seconden, zonder geluid) met dezelfde naam bij,
   anders laadt het blok op de homepage de hele video.
+- Nieuwe galerijfoto: zet er ook een versie van 480 px breed in `klein/`. Nieuwe
+  hero-foto: zet er ook een staande uitsnede (breedte 0,6 × hoogte, max 1440 px
+  hoog) in `hero/mobiel/`. Ontbreekt die, dan werkt het nog wel, maar krijgt een
+  telefoon de grote foto. Zie `PERF.md` voor waarom.
 - Originele (grote) bestanden horen niet in het project.

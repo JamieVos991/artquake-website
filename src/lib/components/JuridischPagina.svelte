@@ -17,7 +17,7 @@
 
 <header class="jp-header">
   <a class="jp-brand" href={base || "/"}>
-    <img class="jp-logo" src={logo} alt="Artquake, naar home" />
+    <img class="jp-logo" src={logo} alt="Artquake, naar home" width="406" height="270" />
   </a>
 </header>
 

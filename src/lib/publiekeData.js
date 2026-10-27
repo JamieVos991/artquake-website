@@ -23,8 +23,23 @@ function velden(f) {
 	return Object.fromEntries(Object.entries(f).map(([k, v]) => [k, waarde(v)]));
 }
 
+// Vragen de pagina en het menu tegelijk dezelfde collectie op (de homepage
+// en het menu allebei de agenda), dan gaat er maar één verzoek uit. Het
+// resultaat blijft een paar minuten bewaard; daarna weer vers ophalen.
+const BEWAAR_MS = 5 * 60 * 1000;
+const opgehaald = new Map();
+
 // Haalt alle documenten van een collectie op als [{ id, ...velden }].
-export async function haalCollectieOp(naam) {
+export function haalCollectieOp(naam) {
+	const bewaard = opgehaald.get(naam);
+	if (bewaard && Date.now() - bewaard.tijd < BEWAAR_MS) return bewaard.belofte;
+	const belofte = haalCollectieVers(naam);
+	opgehaald.set(naam, { belofte, tijd: Date.now() });
+	belofte.catch(() => opgehaald.delete(naam));
+	return belofte;
+}
+
+async function haalCollectieVers(naam) {
 	const docs = [];
 	let pagina = "";
 	do {

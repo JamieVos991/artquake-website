@@ -1,34 +1,44 @@
 <script>
-  import { onDestroy, onMount } from "svelte";
+  import { onMount } from "svelte";
   import { base } from "$app/paths";
   import { goto } from "$app/navigation";
   import { onAuthStateChanged } from "firebase/auth";
-  import {
-    collection,
-    addDoc,
-    deleteDoc,
-    doc,
-    getDoc,
-    onSnapshot,
-    query,
-    where,
-    serverTimestamp,
-  } from "firebase/firestore";
-  import { db, auth } from "$lib/firebase.js";
+  import { auth } from "$lib/firebaseApp.js";
+  import { isCrewBrowser } from "$lib/crew.js";
   import { stuurReserveringMail, stuurVerificatiecode, mailActief, nieuweAnnuleerCode } from "$lib/reserveringMail.js";
 
   // alleen op art-quake.com gaan er mails uit (verificatiecode en bevestiging)
   const mailAan = mailActief();
 
+  // De database (Firestore) is het grootste deel van Firebase. Die laadt pas
+  // na de inlogcheck, zodat de pagina niet eerst op de hele SDK wacht; tot dan
+  // is fs null. Functies die de database nodig hebben wachten op laadFirestore().
+  let fs = $state.raw(null);
+  let firestoreLaden;
+  function laadFirestore() {
+    firestoreLaden ??= Promise.all([import("firebase/firestore"), import("$lib/firebase.js")]).then(
+      ([firestore, { db }]) => (fs = { ...firestore, db })
+    );
+    return firestoreLaden;
+  }
+
   // Reserveren is tijdelijk alleen voor ingelogde crew: wie niet is
-  // ingelogd gaat naar de inlogpagina en komt daarna hier terug.
+  // ingelogd gaat naar de inlogpagina en komt daarna hier terug. Heeft
+  // niemand van de crew in deze browser ingelogd, dan meteen door, zonder
+  // eerst Firebase te laden.
   let ingelogd = $state(false);
-  onMount(() =>
-    onAuthStateChanged(auth, (user) => {
+  onMount(() => {
+    const naarLogin = () => goto(`${base}/login?next=/reserveren`, { replaceState: true });
+    if (!isCrewBrowser()) {
+      naarLogin();
+      return;
+    }
+    return onAuthStateChanged(auth, (user) => {
       ingelogd = !!user;
-      if (!user) goto(`${base}/login?next=/reserveren`, { replaceState: true });
-    })
-  );
+      if (user) laadFirestore();
+      else naarLogin();
+    });
+  });
 
   const CODE_GELDIG_MINUTEN = 15;
   const MAX_CODE_POGINGEN = 5;
@@ -104,27 +114,25 @@
   let codeVersturen = $state(false);
   let codeNetVerstuurd = $state(false);
 
-  // Bestaande reserveringen voor de gekozen studio, zodat een tijdvak dat al
-  // bezet is niet nogmaals gekozen kan worden.
+  // Bestaande reserveringen voor de gekozen studio op de gekozen dag, zodat
+  // een tijdvak dat al bezet is niet nogmaals gekozen kan worden. Alleen die
+  // dag ophalen: alle reserveringen van een studio worden steeds meer.
   let bestaandeReserveringen = $state([]);
-  let unsubscribeReserveringen;
 
   $effect(() => {
-    unsubscribeReserveringen?.();
     bestaandeReserveringen = [];
-    if (!selectedStudio) return;
-    unsubscribeReserveringen = onSnapshot(
-      query(
-        collection(db, "reserveringen"),
-        where("studio", "==", selectedStudio)
+    if (!selectedStudio || !datum || !fs) return;
+    return fs.onSnapshot(
+      fs.query(
+        fs.collection(fs.db, "reserveringen"),
+        fs.where("studio", "==", selectedStudio),
+        fs.where("datum", "==", datum)
       ),
       (snapshot) => {
         bestaandeReserveringen = snapshot.docs.map((d) => d.data());
       }
     );
   });
-
-  onDestroy(() => unsubscribeReserveringen?.());
 
   let bezetteTijdvakken = $derived(
     bestaandeReserveringen
@@ -200,6 +208,7 @@
   }
 
   async function maakReserveringAan() {
+    await laadFirestore();
     // Eerst vastleggen wat er geboekt wordt. Zodra de reservering is opgeslagen
     // telt het tijdvak als bezet en wist het formulier de gekozen tijden; zonder
     // deze kopie stonden die dan leeg in de bevestiging en de mail.
@@ -212,10 +221,10 @@
       eindtijd,
     };
     const annuleerCode = nieuweAnnuleerCode();
-    const ref = await addDoc(collection(db, "reserveringen"), {
+    const ref = await fs.addDoc(fs.collection(fs.db, "reserveringen"), {
       ...gegevens,
       annuleerCode,
-      aangemaaktOp: serverTimestamp(),
+      aangemaaktOp: fs.serverTimestamp(),
     });
     gemaakteReservering = { id: ref.id, annuleerCode, ...gegevens };
     geannuleerd = false;
@@ -237,11 +246,12 @@
 
     submitting = true;
     try {
+      await laadFirestore();
       if (!mailAan) {
         await maakReserveringAan();
       } else {
         const code = genereerCode();
-        const ref = await addDoc(collection(db, "reserveringen_pending"), {
+        const ref = await fs.addDoc(fs.collection(fs.db, "reserveringen_pending"), {
           studio: selectedStudio,
           naam,
           email,
@@ -249,7 +259,7 @@
           starttijd,
           eindtijd,
           code,
-          aangemaaktOp: serverTimestamp(),
+          aangemaaktOp: fs.serverTimestamp(),
         });
         await stuurVerificatiecode(email, naam, code);
         pendingId = ref.id;
@@ -277,8 +287,9 @@
 
     submitting = true;
     try {
-      const pendingSnap = await getDoc(
-        doc(db, "reserveringen_pending", pendingId)
+      await laadFirestore();
+      const pendingSnap = await fs.getDoc(
+        fs.doc(fs.db, "reserveringen_pending", pendingId)
       );
       if (!pendingSnap.exists()) {
         codeFout = "Deze verificatie is verlopen. Vraag een nieuwe code aan.";
@@ -312,7 +323,7 @@
       }
 
       await maakReserveringAan();
-      deleteDoc(doc(db, "reserveringen_pending", pendingId)).catch(() => {});
+      fs.deleteDoc(fs.doc(fs.db, "reserveringen_pending", pendingId)).catch(() => {});
       pendingId = null;
     } catch (err) {
       codeFout = "Verifiëren mislukt. Probeer het opnieuw.";
@@ -325,11 +336,12 @@
     codeVersturen = true;
     codeFout = "";
     try {
+      await laadFirestore();
       if (pendingId) {
-        deleteDoc(doc(db, "reserveringen_pending", pendingId)).catch(() => {});
+        fs.deleteDoc(fs.doc(fs.db, "reserveringen_pending", pendingId)).catch(() => {});
       }
       const code = genereerCode();
-      const ref = await addDoc(collection(db, "reserveringen_pending"), {
+      const ref = await fs.addDoc(fs.collection(fs.db, "reserveringen_pending"), {
         studio: selectedStudio,
         naam,
         email,
@@ -337,7 +349,7 @@
         starttijd,
         eindtijd,
         code,
-        aangemaaktOp: serverTimestamp(),
+        aangemaaktOp: fs.serverTimestamp(),
       });
       await stuurVerificatiecode(email, naam, code);
       pendingId = ref.id;
@@ -356,7 +368,7 @@
 
   function terugNaarDatum() {
     if (pendingId)
-      deleteDoc(doc(db, "reserveringen_pending", pendingId)).catch(() => {});
+      fs.deleteDoc(fs.doc(fs.db, "reserveringen_pending", pendingId)).catch(() => {});
     pendingId = null;
     codeInvoer = "";
     codeFout = "";
@@ -368,7 +380,8 @@
     if (!gemaakteReservering) return;
     annuleerBezig = true;
     try {
-      await deleteDoc(doc(db, "reserveringen", gemaakteReservering.id));
+      await laadFirestore();
+      await fs.deleteDoc(fs.doc(fs.db, "reserveringen", gemaakteReservering.id));
       geannuleerd = true;
     } catch (err) {
       error =

@@ -157,7 +157,7 @@
 </section>
 
 <footer class="footer">
-  <img class="footer-brand" src={logo} alt="Artquake, creative space" />
+  <img class="footer-brand" src={logo} alt="Artquake, creative space" width="406" height="270" />
   <p class="footer-tag">
     Culturele organisatie voor en door jonge makers.<br />Jongerenkunst ·
     Talentontwikkeling · Community.

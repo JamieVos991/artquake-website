@@ -25,12 +25,18 @@
     "../../../lib/assets/fotos/diensten/*/*.avif",
     { eager: true, import: "default" }
   );
+  // 480 px brede versies in klein/ (zelfde naam), voor telefoons en kleine
+  // kolommen; de grote foto (max 1200 px) alleen voor scherpe brede schermen
+  const galerijKlein = import.meta.glob(
+    "../../../lib/assets/fotos/diensten/*/klein/*.avif",
+    { eager: true, import: "default" }
+  );
   const galerij = $derived(
-    (dienst.galerij ?? []).map((g, i) => ({
-      ...g,
-      i,
-      src: galerijFotos[`../../../lib/assets/fotos/diensten/${dienst.slug}/${g.foto}.avif`],
-    }))
+    (dienst.galerij ?? []).map((g, i) => {
+      const src = galerijFotos[`../../../lib/assets/fotos/diensten/${dienst.slug}/${g.foto}.avif`];
+      const klein = galerijKlein[`../../../lib/assets/fotos/diensten/${dienst.slug}/klein/${g.foto}.avif`];
+      return { ...g, i, src, srcset: klein ? `${klein} 480w, ${src} 1200w` : undefined };
+    })
   );
 
   // Collage: de foto's worden verdeeld over kolommen (steeds op de kortste),
@@ -115,7 +121,7 @@
 
 <header class="dp-header">
   <a class="dp-brand" href={base || "/"}>
-    <img class="dp-logo" src={logo} alt="Artquake, naar home" />
+    <img class="dp-logo" src={logo} alt="Artquake, naar home" width="406" height="270" />
   </a>
 </header>
 
@@ -163,7 +169,13 @@
               style:aspect-ratio={g.verhouding}
               style:flex-grow={hoogte(g.verhouding)}
             >
-              <img src={g.src} alt={g.titel} loading="lazy" />
+              <img
+                src={g.src}
+                srcset={g.srcset}
+                sizes="(max-width: 640px) 50vw, 33vw"
+                alt={g.titel}
+                loading="lazy"
+              />
               <!-- de alt-tekst zegt het al; zonder aria-hidden leest een schermlezer het twee keer -->
               <span class="dp-galerij-titel" aria-hidden="true">{g.titel}</span>
             </li>

@@ -9,6 +9,8 @@
     updateDoc,
     doc,
     onSnapshot,
+    query,
+    where,
     serverTimestamp,
   } from "firebase/firestore";
   import { onAuthStateChanged } from "firebase/auth";
@@ -75,6 +77,15 @@
     return studios.find((s) => s.id === id)?.label ?? id ?? "–";
   }
 
+  // Leesbare melding als verwijderen mislukt, met de reden erbij.
+  function verwijderFout(err) {
+    if (err?.code === "permission-denied")
+      return "Verwijderen mislukt: dit account heeft geen beheerdersrechten. Log in met een beheerdersaccount, of laat dit account als beheerder toevoegen in Firebase.";
+    if (err?.code === "unavailable")
+      return "Verwijderen mislukt: geen verbinding met de database. Controleer je internet en probeer het opnieuw.";
+    return `Verwijderen mislukt. Probeer het opnieuw. (${err?.code || err?.message || "onbekende fout"})`;
+  }
+
   function formatDatum(iso) {
     if (!iso) return "–";
     const [j, m, d] = iso.split("-");
@@ -121,7 +132,7 @@
         alert(`De reservering is verwijderd, maar de mail naar ${r.email} kon niet worden verstuurd.`);
       }
     } catch (err) {
-      alert("Verwijderen mislukt. Probeer het opnieuw.");
+      alert(verwijderFout(err));
     } finally {
       verwijderBezig = null;
     }
@@ -332,7 +343,7 @@
         leegFormulier();
       }
     } catch (err) {
-      alert("Verwijderen mislukt. Probeer het opnieuw.");
+      alert(verwijderFout(err));
     } finally {
       verwijderBezig = null;
     }
@@ -369,8 +380,12 @@
       }
     );
 
+    // Alleen reserveringen vanaf BEWAAR_MAANDEN geleden (dezelfde grens als
+    // bij het opruimen van activiteiten): oudere blijven in Firestore staan,
+    // maar zouden anders bij elk openen van het dashboard opnieuw meetellen
+    // als reads, en dat worden er steeds meer.
     unsubscribeReserveringen = onSnapshot(
-      collection(db, "reserveringen"),
+      query(collection(db, "reserveringen"), where("datum", ">=", opruimGrens())),
       (snapshot) => {
         reserveringen = snapshot.docs
           .map((d) => ({ id: d.id, ...d.data() }))
@@ -668,7 +683,7 @@
         leegArtiestFormulier();
       }
     } catch (err) {
-      alert("Verwijderen mislukt. Probeer het opnieuw.");
+      alert(verwijderFout(err));
     } finally {
       verwijderBezig = null;
     }

@@ -463,6 +463,7 @@
     font-size: clamp(30px, 3.8vw, 58px);
     line-height: 1;
     letter-spacing: -0.03em;
+    white-space: nowrap;
   }
   /* huidige pagina: geel/oranje met doorgestreepte lijn */
   .menu-item.is-huidig .menu-nr,

@@ -1,6 +1,9 @@
 <script>
   import dewiUitlegVideo from "$lib/assets/videos/pand/dewi-rondleiding.mp4";
   import pandFoto from "$lib/assets/fotos/pand/artquake-pand-voorkant.avif";
+  // eerste beeld van de video: getoond tot de video in beeld komt en start,
+  // zodat de pagina bij openen niets van de video hoeft te laden
+  import dewiPoster from "$lib/assets/fotos/pand/dewi-rondleiding-poster.avif";
 
   // Stops op het pad (coördinaten in het SVG-raster van 1160×1280).
   // kant: op welk stuk van het pad de stop ligt, bepaalt de richting van het label.
@@ -139,7 +142,8 @@
         controls
         muted
         playsinline
-        preload="metadata"
+        preload="none"
+        poster={dewiPoster}
       >
         <source src={dewiUitlegVideo} type="video/mp4" />
         Je browser ondersteunt deze video niet.

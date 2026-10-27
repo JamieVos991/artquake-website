@@ -133,7 +133,7 @@
 
 <header class="ap-header">
   <a class="ap-brand" href={base || "/"}>
-    <img class="ap-logo" src={logo} alt="Artquake, naar home" />
+    <img class="ap-logo" src={logo} alt="Artquake, naar home" width="406" height="270" />
   </a>
 </header>
 

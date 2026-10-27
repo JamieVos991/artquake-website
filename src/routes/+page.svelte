@@ -116,6 +116,22 @@
     import: "default",
   });
   const heroImages = Object.values(heroModules);
+  // Staande uitsneden voor telefoons (hero/mobiel/, zelfde bestandsnaam). Op
+  // een staand scherm valt van een liggende foto toch alleen het midden te
+  // zien; de uitsnede is even scherp maar een stuk kleiner. Zonder uitsnede
+  // krijgt de telefoon gewoon de grote foto.
+  const heroMobielModules = import.meta.glob("../lib/assets/fotos/hero/mobiel/*.{avif,webp,jpg,jpeg}", {
+    eager: true,
+    import: "default",
+  });
+  const heroMobiel = Object.fromEntries(
+    heroImages.map((src, i) => {
+      const naam = Object.keys(heroModules)[i].split("/").pop();
+      const mobiel = Object.entries(heroMobielModules).find(([pad]) => pad.endsWith(`/${naam}`));
+      return [src, mobiel?.[1]];
+    })
+  );
+  const MOBIEL_SCHERM = "(max-aspect-ratio: 3/4)";
   // uitsnede per hero-foto (object-position); zonder regel hier: midden
   const heroPosities = {
     // bovenaan (hele hoofd op brede schermen) en iets naar links, zodat ze
@@ -129,12 +145,18 @@
   let heroIndex = $state(0);
   let heroRevealed = $state(heroImages.length > 0 ? 1 : 0);
 
+  // Steeds alleen de foto die nu staat en de volgende in de pagina zetten,
+  // zodat ze niet allemaal tegelijk met de eerste foto binnenkomen (dat
+  // vertraagt de eerste foto op een trage verbinding). De volgende laadt
+  // tijdens de 3 seconden dat de huidige in beeld is.
   $effect(() => {
-    if (heroImages.length <= 1) return;
+    if (!heroWisselt) return;
+    const nodig = Math.min(heroImages.length, heroIndex + 2);
+    if (nodig <= heroRevealed) return;
     const idle = window.requestIdleCallback ?? ((cb) => setTimeout(cb, 200));
     const cancelIdle = window.cancelIdleCallback ?? clearTimeout;
     const id = idle(() => {
-      heroRevealed = heroImages.length;
+      heroRevealed = Math.max(heroRevealed, nodig);
     });
     return () => cancelIdle(id);
   });
@@ -325,7 +347,22 @@
     name="description"
     content="Artquake in Heerhugowaard geeft jonge makers een podium en een netwerk: Talent Night, exposities, jamsessies, workshops, coaching en gratis oefenruimtes."
   />
-  {#if firstHeroImage}
+  {#if firstHeroImage && heroMobiel[firstHeroImage]}
+    <link
+      rel="preload"
+      as="image"
+      href={heroMobiel[firstHeroImage]}
+      media={MOBIEL_SCHERM}
+      fetchpriority="high"
+    />
+    <link
+      rel="preload"
+      as="image"
+      href={firstHeroImage}
+      media="not all and {MOBIEL_SCHERM}"
+      fetchpriority="high"
+    />
+  {:else if firstHeroImage}
     <link rel="preload" as="image" href={firstHeroImage} fetchpriority="high" />
   {/if}
 </svelte:head>
@@ -337,22 +374,27 @@
 
 <header class="hero-shell">
   <a class="brand" href={base}>
-    <img class="brand-logo" src={logo} alt="Artquake, naar home" />
+    <img class="brand-logo" src={logo} alt="Artquake, naar home" width="406" height="270" />
   </a>
 
   <section class="hero" id="hero" aria-label="Introductie">
     <figure class="hero-image">
       {#each heroImages as src, i}
         {#if i < heroRevealed}
-          <img
-            class="hero-photo"
-            class:active={i === heroIndex}
-            {src}
-            alt=""
-            style:object-position={heroPositie(src)}
-            loading={i === 0 ? "eager" : "lazy"}
-            fetchpriority={i === 0 ? "high" : undefined}
-          />
+          <picture>
+            {#if heroMobiel[src]}
+              <source media={MOBIEL_SCHERM} srcset={heroMobiel[src]} />
+            {/if}
+            <img
+              class="hero-photo"
+              class:active={i === heroIndex}
+              {src}
+              alt=""
+              style:object-position={heroPositie(src)}
+              loading={i === 0 ? "eager" : "lazy"}
+              fetchpriority={i === 0 ? "high" : undefined}
+            />
+          </picture>
         {/if}
       {/each}
       {#if heroImages.length === 0}

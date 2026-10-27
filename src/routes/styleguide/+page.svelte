@@ -82,7 +82,7 @@
 </svelte:head>
 
 <header class="sg-header">
-  <a href={base || "/"}><img src={logo} alt="Artquake, naar home" /></a>
+  <a href={base || "/"}><img src={logo} alt="Artquake, naar home" width="406" height="270" /></a>
 </header>
 
 <div class="sg">
