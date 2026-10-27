@@ -155,9 +155,14 @@
     if (nodig <= heroRevealed) return;
     const idle = window.requestIdleCallback ?? ((cb) => setTimeout(cb, 200));
     const cancelIdle = window.cancelIdleCallback ?? clearTimeout;
-    const id = idle(() => {
-      heroRevealed = Math.max(heroRevealed, nodig);
-    });
+    // timeout: op een drukke pagina komt "idle" soms nooit, en dan bleef de
+    // hero leeg zodra hij naar een foto wisselde die er nog niet was
+    const id = idle(
+      () => {
+        heroRevealed = Math.max(heroRevealed, nodig);
+      },
+      { timeout: 1000 },
+    );
     return () => cancelIdle(id);
   });
 
@@ -171,12 +176,21 @@
       !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   });
 
+  // De eerste foto blijft langer staan (8 s): een wissel tijdens het laden
+  // telt bij Lighthouse als "pagina nog niet klaar" (Speed Index), en zo
+  // heeft de bezoeker ook rustig tijd om de kop te lezen.
+  let heroEersteWissel = true;
   $effect(() => {
     if (!heroWisselt || heroPauze) return;
-    const id = setInterval(() => {
-      heroIndex = (heroIndex + 1) % heroImages.length;
-    }, 3000);
-    return () => clearInterval(id);
+    const volgende = (heroIndex + 1) % heroImages.length; // na elke wissel opnieuw
+    const id = setTimeout(
+      () => {
+        heroEersteWissel = false;
+        heroIndex = volgende;
+      },
+      heroEersteWissel ? 8000 : 3000,
+    );
+    return () => clearTimeout(id);
   });
 
   const ticks = [

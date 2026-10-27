@@ -25,6 +25,8 @@ Doelen (Core Web Vitals): LCP ≤ 2,5 s, CLS ≤ 0,1.
 | Reserveren: alleen reserveringen van gekozen studio + dag ophalen | niet gemeten (data groeit) | gehouden | Haalde alle reserveringen van een studio ooit op |
 | Dashboard: reserveringen vanaf 3 maanden terug | niet gemeten (data groeit) | gehouden | Elke reservering ooit telde bij elk openen als read |
 | Agenda op homepage één keer ophalen (pagina en menu delen) | 2 → 1 verzoek | gehouden | Dubbel verzoek |
+| Eerste hero-wissel pas na 8 s i.p.v. 3 s | Home Speed Index 4,5 → 3,1 s (3×), score ~0,80 | gehouden | De overvloeier van 1,5 s op 3 s telde als "pagina nog niet klaar" |
+| `requestIdleCallback` voor volgende hero-foto met `timeout: 1000` | n.v.t. (bug) | gehouden | Zonder timeout kwam idle soms nooit en bleef de hero 3 s leeg |
 
 Eindmeting (om en om, 3× per pagina, mediaan LCP):
 
