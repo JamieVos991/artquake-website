@@ -17,6 +17,9 @@ const config = {
 			assets: 'build-vimexx',
 			fallback: '404.html'
 		}),
+		// CSS in de HTML zelf i.p.v. losse bestanden: de browser hoeft niet eerst
+		// op die bestanden te wachten voordat hij iets laat zien (zie PERF.md)
+		inlineStyleThreshold: Infinity,
 		prerender: {
 			// De pagina's van activiteiten (/agenda/[id]) worden bij het bouwen uit
 			// Firestore gehaald. Lukt dat even niet, dan niet de hele build laten

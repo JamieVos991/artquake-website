@@ -27,6 +27,7 @@ Doelen (Core Web Vitals): LCP ≤ 2,5 s, CLS ≤ 0,1.
 | Agenda op homepage één keer ophalen (pagina en menu delen) | 2 → 1 verzoek | gehouden | Dubbel verzoek |
 | Eerste hero-wissel pas na 8 s i.p.v. 3 s | Home Speed Index 4,5 → 3,1 s (3×), score ~0,80 | gehouden | De overvloeier van 1,5 s op 3 s telde als "pagina nog niet klaar" |
 | `requestIdleCallback` voor volgende hero-foto met `timeout: 1000` | n.v.t. (bug) | gehouden | Zonder timeout kwam idle soms nooit en bleef de hero 3 s leeg |
+| CSS in de HTML (`inlineStyleThreshold: Infinity`) | Home FCP 2,8 → 1,9 s, LCP 4,4 → 2,7 s, SI 3,1 → 1,9 s, score 0,80 → 0,95 (3×) | gehouden | De hero-foto was na 0,6 s binnen maar wachtte op twee CSS-bestanden; index.html wordt 81 KB (ongezipt) |
 
 Eindmeting (om en om, 3× per pagina, mediaan LCP):
 
