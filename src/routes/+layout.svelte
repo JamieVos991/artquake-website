@@ -567,9 +567,12 @@
       padding: 14px;
       font-size: 16px;
     }
-    .footer { padding-left: 20px; padding-right: 20px; grid-template-columns: 1fr; }
+    /* onderaan ruimte voor de naar-boven-knop, die anders over de laatste regel valt */
+    .footer { padding: 56px 20px 84px; grid-template-columns: 1fr; }
     .footer-brand, .footer-tag, .footer-col { grid-column: 1; }
     .footer-brand { height: 48px; }
-    .footer-bottom { flex-direction: column; gap: 6px; }
+    /* de regel zonder link krijgt dezelfde ruimte als de links, dan zijn alle gaten gelijk */
+    .footer-bottom { flex-direction: column; gap: 0; }
+    .footer-bottom > span:first-child { padding: 7px 0; }
   }
 </style>

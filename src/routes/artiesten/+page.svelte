@@ -68,6 +68,26 @@
     (tekst ?? "").split(/\n\s*\n/).map((x) => x.trim()).filter(Boolean);
   let gekozenSocials = $derived(gekozen ? socialsVan(gekozen) : []);
 
+  // knop "kopieer link": de eigen link van de artiest (/artiesten#naam)
+  let linkGekopieerd = $state(false);
+  let kopieerTimer;
+  async function kopieerArtiestLink() {
+    const link = `${location.origin}${base}/artiesten#${artiestSlug(gekozen)}`;
+    try {
+      await navigator.clipboard.writeText(link);
+    } catch {
+      // oudere browsers of geen toestemming: via een tijdelijk tekstveld
+      const veld = Object.assign(document.createElement("textarea"), { value: link });
+      dialoog.append(veld);
+      veld.select();
+      document.execCommand("copy");
+      veld.remove();
+    }
+    linkGekopieerd = true;
+    clearTimeout(kopieerTimer);
+    kopieerTimer = setTimeout(() => (linkGekopieerd = false), 2000);
+  }
+
   async function openArtiest(a, e) {
     opener = e?.currentTarget ?? null;
     gekozen = a;
@@ -284,9 +304,13 @@
             />
           {/if}
         </figure>
-        {#if gekozenSocials.length}
-          <div class="ap-dialoog-volg">
+        <div class="ap-dialoog-volg">
+          {#if gekozenSocials.length}
             <h3 class="ap-dialoog-kop">VOLG {gekozen.naam.toUpperCase()}</h3>
+          {/if}
+          <!-- socials en de kopieerknop op één rij -->
+          <div class="ap-volg-rij">
+          {#if gekozenSocials.length}
             <ul class="ap-socials">
               {#each gekozenSocials as x}
                 <li>
@@ -299,8 +323,20 @@
                 </li>
               {/each}
             </ul>
+          {/if}
+          <button type="button" class="ap-kopieer" onclick={kopieerArtiestLink}>
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              {#if linkGekopieerd}
+                <path d="M5 12.5l4.5 4.5L19 7.5" />
+              {:else}
+                <path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1.2 1.2" />
+                <path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1.2-1.2" />
+              {/if}
+            </svg>
+            <span aria-live="polite">{linkGekopieerd ? "LINK GEKOPIEERD" : "KOPIEER LINK"}</span>
+          </button>
           </div>
-        {/if}
+        </div>
       </div>
       <div class="ap-dialoog-tekst">
         <h2 class="ap-dialoog-naam" id="ap-dialoog-naam" style:--tekens={gekozen.naam.length}>{gekozen.naam}</h2>
@@ -841,6 +877,44 @@
     width: 22px;
     height: 22px;
     fill: currentColor;
+  }
+  .ap-volg-rij {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+  /* zelfde rand als de socials, maar met tekst erbij */
+  .ap-kopieer {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 48px;
+    padding: 0 18px 0 14px;
+    background: none;
+    border: 2px solid var(--color-bg);
+    border-radius: 999px;
+    color: var(--color-bg);
+    font: 700 12px/1 var(--font-mono);
+    letter-spacing: 0.14em;
+    cursor: pointer;
+  }
+  .ap-kopieer:hover {
+    background: var(--color-bg);
+    color: var(--color-fg);
+  }
+  .ap-kopieer:focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+  .ap-kopieer svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
   .ap-socials svg.ap-icoon-lijn {
     fill: none;
