@@ -61,8 +61,28 @@
       { threshold: 0.5 }
     );
     observer.observe(videoEl);
-    return () => observer.disconnect();
+
+    // Al gaan laden als je ernaartoe scrollt (ruim een scherm ervoor), zodat
+    // hij meteen start zodra hij in beeld is; bij openen van de pagina nog niet.
+    const vooraf = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        videoEl.preload = "auto";
+        // alleen als hij nog niets aan het laden is (anders stopt load() het afspelen)
+        if (videoEl.paused && videoEl.readyState === 0 && videoEl.networkState !== 2) videoEl.load();
+        vooraf.disconnect();
+      },
+      { rootMargin: "1000px 0px" }
+    );
+    vooraf.observe(videoEl);
+    return () => {
+      observer.disconnect();
+      vooraf.disconnect();
+    };
   });
+
+  // draaiend rondje zolang de video na starten nog laadt
+  let videoLaadt = $state(false);
 </script>
 
 <!-- op smalle schermen staat de intro boven het bord -->
@@ -144,10 +164,21 @@
         playsinline
         preload="none"
         poster={dewiPoster}
+        onplay={() => (videoLaadt = true)}
+        onwaiting={() => (videoLaadt = true)}
+        onplaying={() => (videoLaadt = false)}
+        onpause={() => (videoLaadt = false)}
+        onerror={() => (videoLaadt = false)}
       >
         <source src={dewiUitlegVideo} type="video/mp4" />
         Je browser ondersteunt deze video niet.
       </video>
+      {#if videoLaadt}
+        <span class="route-laadt" role="status">
+          <span class="route-spinner" aria-hidden="true"></span>
+          <span class="route-visueel-verborgen">Video laden…</span>
+        </span>
+      {/if}
       <button
         type="button"
         class="route-unmute"
@@ -327,6 +358,41 @@
     object-fit: cover;
   }
   /* rechtsboven in de hoek, vrij van de videobediening onderin */
+  /* laadrondje midden op de video; klikken gaat er dwars doorheen */
+  .route-laadt {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    pointer-events: none;
+  }
+  .route-spinner {
+    width: 48px;
+    height: 48px;
+    border: 5px solid var(--color-accent);
+    border-right-color: transparent;
+    border-radius: 50%;
+    filter: drop-shadow(0 0 6px rgb(0 0 0 / 0.6));
+    animation: route-draai 0.8s linear infinite;
+  }
+  @keyframes route-draai {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .route-spinner {
+      animation-duration: 2.4s;
+    }
+  }
+  .route-visueel-verborgen {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
   .route-unmute {
     position: absolute;
     top: 10px;

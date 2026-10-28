@@ -465,7 +465,7 @@
     grid-column: 1;
     display: block;
     margin: 0 0 12px;
-    height: 64px;
+    height: 112px;
     width: auto;
   }
   .footer-tag {
@@ -570,7 +570,7 @@
     /* onderaan ruimte voor de naar-boven-knop, die anders over de laatste regel valt */
     .footer { padding: 56px 20px 84px; grid-template-columns: 1fr; }
     .footer-brand, .footer-tag, .footer-col { grid-column: 1; }
-    .footer-brand { height: 48px; }
+    .footer-brand { height: 84px; }
     /* de regel zonder link krijgt dezelfde ruimte als de links, dan zijn alle gaten gelijk */
     .footer-bottom { flex-direction: column; gap: 0; }
     .footer-bottom > span:first-child { padding: 7px 0; }

@@ -1,7 +1,6 @@
 <script>
   import { onMount } from "svelte";
   import { base } from "$app/paths";
-  import logo from "$lib/assets/artquake-logo.avif";
   import DeelVoorbeeld from "$lib/components/DeelVoorbeeld.svelte";
 
   let { data } = $props();
@@ -128,16 +127,10 @@
   afbeeldingAlt={dienst.heading}
 />
 
-<header class="dp-header">
+<section class="dp-intro bg-{dienst.bg}">
   <a class="dp-terug" href="{base}/#services" aria-label="Terug naar wat we doen">
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 12H6M12 5l-7 7 7 7" /></svg>
   </a>
-  <a class="dp-brand" href={base || "/"}>
-    <img class="dp-logo" src={logo} alt="Artquake, naar home" width="406" height="270" />
-  </a>
-</header>
-
-<section class="dp-intro bg-{dienst.bg}">
   <span class="dp-id">{dienst.id}</span>
   <h1 class="dp-title">{dienst.heading}</h1>
   <p class="dp-tagline">{dienst.intro}</p>
@@ -216,20 +209,13 @@
 {/if}
 
 <style>
-  .dp-header {
-    display: flex;
-    align-items: center;
-    padding: 40px max(30px, var(--rand) - 10px);
-    background: var(--color-bg);
-    color: var(--color-fg);
-  }
-  /* terugknop: zelfde oranje vierkant als het menu, en blijft er net als het
-     menu staan bij scrollen; op desktop links van de menuknop (56px + 12px) */
+  /* terugknop: zelfde oranje vierkant als het menu, linksboven op dezelfde
+     hoogte, net als bij de agenda */
   .dp-terug {
-    position: fixed;
+    position: absolute;
     top: 20px;
-    right: 88px;
-    z-index: 89; /* onder het open menu (z-index 100) */
+    left: 20px;
+    z-index: 2;
     display: grid;
     place-items: center;
     width: 56px;
@@ -261,17 +247,12 @@
       transition: none;
     }
   }
-  .dp-brand {
-    display: block;
-  }
-  .dp-logo {
-    height: 120px;
-    width: auto;
-    display: block;
-  }
-
+  /* geen logobalk, net als bij de agenda: bovenin staan alleen de terugknop
+     en de menuknop */
   .dp-intro {
-    padding: 40px var(--rand) 64px;
+    position: relative;
+    padding: 108px var(--rand) 64px;
+    border-bottom: 4px solid var(--color-bg);
   }
   .bg-dark {
     background: var(--color-bg);
@@ -520,22 +501,18 @@
       padding-left: 20px;
       padding-right: 20px;
     }
-    .dp-header {
-      padding: 28px 16px;
+    .dp-intro {
+      padding-top: 88px;
     }
-    /* op een telefoon onder de menuknop (14px + 48px + 12px) */
     .dp-terug {
-      top: 74px;
-      right: 14px;
+      top: 14px;
+      left: 14px;
       width: 48px;
       height: 48px;
     }
     .dp-terug svg {
       width: 22px;
       height: 22px;
-    }
-    .dp-logo {
-      height: 92px;
     }
   }
 </style>
