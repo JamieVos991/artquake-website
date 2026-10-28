@@ -18,6 +18,15 @@
     const bestand = videos[`../../../lib/assets/videos/diensten/${dienst.slug}.mp4`];
     return bestand && dienst.videoStart ? `${bestand}#t=${dienst.videoStart}` : bestand;
   });
+  // stilstaand beeld uit de video, zodat er niet eerst een zwart vlak staat
+  // tot de video geladen is (lib/assets/fotos/diensten/video-posters/<slug>.webp)
+  const videoPosters = import.meta.glob("../../../lib/assets/fotos/diensten/video-posters/*.webp", {
+    eager: true,
+    import: "default",
+  });
+  // na op play drukken duurt het even tot de video binnen is: dan een draaiend rondje
+  let videoLaadt = $state(false);
+  const videoPoster = $derived(videoPosters[`../../../lib/assets/fotos/diensten/video-posters/${dienst.slug}.webp`]);
 
   // galerijfoto's staan in een map met dezelfde naam als de slug,
   // bijv. fotos/diensten/talent-night/
@@ -120,6 +129,9 @@
 />
 
 <header class="dp-header">
+  <a class="dp-terug" href="{base}/#services" aria-label="Terug naar wat we doen">
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 12H6M12 5l-7 7 7 7" /></svg>
+  </a>
   <a class="dp-brand" href={base || "/"}>
     <img class="dp-logo" src={logo} alt="Artquake, naar home" width="406" height="270" />
   </a>
@@ -140,7 +152,24 @@
     <figure class="dp-video">
       <figcaption>{dienst.videoLabel ?? "VIDEO"}</figcaption>
       <!-- svelte-ignore a11y_media_has_caption -->
-      <video src={video} controls playsinline preload="metadata"></video>
+      <video
+        src={video}
+        poster={videoPoster}
+        controls
+        playsinline
+        preload="metadata"
+        onplay={() => (videoLaadt = true)}
+        onwaiting={() => (videoLaadt = true)}
+        onplaying={() => (videoLaadt = false)}
+        onpause={() => (videoLaadt = false)}
+        onerror={() => (videoLaadt = false)}
+      ></video>
+      {#if videoLaadt}
+        <span class="dp-video-laadt" role="status">
+          <span class="dp-spinner" aria-hidden="true"></span>
+          <span class="dp-visueel-verborgen">Video laden…</span>
+        </span>
+      {/if}
     </figure>
   {/if}
   <div class="dp-body-tekst">
@@ -190,12 +219,47 @@
   .dp-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    /* logo even groot en op dezelfde plek als op de homepage */
-    padding: 40px 30px;
+    padding: 40px max(30px, var(--rand) - 10px);
     background: var(--color-bg);
     color: var(--color-fg);
+  }
+  /* terugknop: zelfde oranje vierkant als het menu, en blijft er net als het
+     menu staan bij scrollen; op desktop links van de menuknop (56px + 12px) */
+  .dp-terug {
+    position: fixed;
+    top: 20px;
+    right: 88px;
+    z-index: 89; /* onder het open menu (z-index 100) */
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    background: var(--color-accent);
+    border: 3px solid var(--color-bg);
+    box-shadow: 4px 4px 0 var(--color-bg);
+    color: var(--color-bg);
+    transition: transform 0.12s;
+  }
+  .dp-terug:hover {
+    transform: translate(-2px, -2px);
+  }
+  .dp-terug:focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+  .dp-terug svg {
+    width: 26px;
+    height: 26px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .dp-terug {
+      transition: none;
+    }
   }
   .dp-brand {
     display: block;
@@ -207,7 +271,7 @@
   }
 
   .dp-intro {
-    padding: 40px 40px 64px;
+    padding: 40px var(--rand) 64px;
   }
   .bg-dark {
     background: var(--color-bg);
@@ -251,7 +315,7 @@
   .dp-body {
     background: var(--color-bg);
     color: var(--color-fg);
-    padding: 56px 40px 96px;
+    padding: 56px var(--rand) 96px;
   }
   /* volgt er een fotogalerij, dan minder ruimte onder de knop */
   .dp-body-galerij {
@@ -324,6 +388,44 @@
     background: var(--color-bg);
     box-shadow: 12px 12px 0 var(--color-primary);
   }
+  /* laadrondje midden op de video, de bediening eronder blijft klikbaar */
+  .dp-video-laadt {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    aspect-ratio: 16 / 9;
+    display: grid;
+    place-items: center;
+    pointer-events: none;
+  }
+  .dp-spinner {
+    width: 56px;
+    height: 56px;
+    border: 5px solid var(--color-accent);
+    border-right-color: transparent;
+    border-radius: 50%;
+    filter: drop-shadow(0 0 6px rgb(0 0 0 / 0.6));
+    animation: dp-draai 0.8s linear infinite;
+  }
+  @keyframes dp-draai {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .dp-spinner {
+      animation-duration: 2.4s;
+    }
+  }
+  .dp-visueel-verborgen {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
   .dp-video figcaption {
     margin-bottom: 28px;
     color: var(--color-accent);
@@ -334,7 +436,7 @@
   .dp-galerij {
     background: var(--color-bg);
     color: var(--color-fg);
-    padding: 0 40px 96px;
+    padding: 0 var(--rand) 96px;
   }
   .dp-galerij-kop {
     margin: 0 0 28px;
@@ -420,6 +522,17 @@
     }
     .dp-header {
       padding: 28px 16px;
+    }
+    /* op een telefoon onder de menuknop (14px + 48px + 12px) */
+    .dp-terug {
+      top: 74px;
+      right: 14px;
+      width: 48px;
+      height: 48px;
+    }
+    .dp-terug svg {
+      width: 22px;
+      height: 22px;
     }
     .dp-logo {
       height: 92px;

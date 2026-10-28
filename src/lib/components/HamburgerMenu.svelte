@@ -646,7 +646,7 @@
     }
   }
 
-  /* sluitknop */
+  /* sluitknop: vierkant, net als de menuknop */
   .menu-sluit {
     position: absolute;
     top: 16px;
@@ -656,7 +656,6 @@
     height: 44px;
     background: var(--color-bg);
     border: 2px solid var(--color-bg);
-    border-radius: 50%;
     cursor: pointer;
   }
   .menu-sluit span {

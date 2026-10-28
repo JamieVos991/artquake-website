@@ -34,7 +34,7 @@
 <style>
   .jp-header {
     /* logo even groot en op dezelfde plek als op de homepage */
-    padding: 40px 30px;
+    padding: 40px max(30px, var(--rand) - 10px);
     background: var(--color-bg);
   }
   .jp-brand {
@@ -46,7 +46,7 @@
     display: block;
   }
   .jp-intro {
-    padding: 40px 40px 64px;
+    padding: 40px var(--rand) 64px;
     background: var(--color-primary);
     color: var(--color-fg);
   }
@@ -68,7 +68,7 @@
     overflow-wrap: break-word;
   }
   .jp-body {
-    padding: 56px 40px 96px;
+    padding: 56px var(--rand) 96px;
     background: var(--color-bg);
     color: var(--color-fg);
     font: 400 15px/1.7 var(--font-mono);

@@ -360,7 +360,7 @@
     align-items: center;
     justify-content: space-between;
     /* logo even groot en op dezelfde plek als op de homepage */
-    padding: 40px 30px;
+    padding: 40px max(30px, var(--rand) - 10px);
     background: var(--color-bg);
   }
   .ap-brand {
@@ -375,7 +375,7 @@
   .ap-intro {
     background: var(--color-bg);
     color: var(--color-fg);
-    padding: 20px 40px 64px;
+    padding: 20px var(--rand) 64px;
   }
   .ap-title {
     margin: 0;
@@ -395,7 +395,7 @@
   /* section */
   .ap-section {
     background: var(--color-fg);
-    padding: 48px 40px 72px;
+    padding: 48px var(--rand) 72px;
   }
   .ap-section-head {
     display: flex;

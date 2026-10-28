@@ -1,4 +1,8 @@
 :root {
+  /* zijruimte van de secties: 40px, en op een heel breed scherm (iMac,
+     ingezoomd naar 80%) meer, zodat de inhoud max. 1760px breed is en in het
+     midden staat; achtergronden lopen wel door over de volle breedte */
+  --rand: max(40px, (100% - 1760px) / 2);
   /* colors */
   --color-bg: #0b0b0b;
   --color-fg: #f4f1ea;
@@ -42,6 +46,12 @@ html {
   /* ruimte voor de scrollbalk altijd vasthouden: anders wordt de pagina
      breder als een menu of popup het scrollen uitzet, en verspringt alles */
   scrollbar-gutter: stable;
+}
+
+/* container: zo kan een blok dat tot de rand van het scherm doorloopt (de rij
+   crewkaarten) met 100cqw de volle breedte gebruiken */
+main {
+  container-type: inline-size;
 }
 
 body {

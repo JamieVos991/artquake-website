@@ -146,7 +146,7 @@
     align-items: end;
     gap: 40px;
     /* geen logobalk: bovenin staan de terugknop (links) en de menuknop (rechts) */
-    padding: 108px 40px 48px;
+    padding: 108px var(--rand) 48px;
     border-bottom: 4px solid var(--color-bg);
   }
   .ac-kop-tekst {
@@ -262,7 +262,7 @@
     display: flex;
     flex-direction: column;
     gap: 64px;
-    padding: 48px 40px 80px;
+    padding: 48px var(--rand) 80px;
     background: var(--color-fg);
     color: var(--color-bg);
   }

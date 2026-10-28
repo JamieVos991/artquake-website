@@ -319,7 +319,7 @@
     position: relative;
     background: var(--color-accent);
     color: var(--color-bg);
-    padding: 74px 40px;
+    padding: 74px var(--rand);
     border-bottom: 4px solid var(--color-bg);
     overflow: hidden;
     display: grid;
@@ -455,7 +455,7 @@
   .footer {
     background: var(--color-bg);
     color: var(--color-fg);
-    padding: 56px 40px 34px;
+    padding: 56px var(--rand) 34px;
     display: grid;
     grid-template-columns: minmax(0, 1.4fr) repeat(4, minmax(0, 1fr));
     gap: clamp(35px, 3vw, 36px);

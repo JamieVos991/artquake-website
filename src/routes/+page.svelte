@@ -778,7 +778,7 @@
     display: flex;
     align-items: center;
     text-decoration: none;
-    padding: 40px 30px;
+    padding: 40px max(30px, var(--rand) - 10px);
   }
   .brand-logo {
     height: 120px;
@@ -885,7 +885,7 @@
   }
   .hero-copy {
     position: absolute;
-    left: 40px;
+    left: var(--rand);
     right: 40px;
     bottom: 52px;
     margin: 0;
@@ -943,7 +943,7 @@
   .mission {
     background: var(--color-fg);
     color: var(--color-bg);
-    padding: clamp(36px, 5vw, 70px) clamp(16px, 4vw, 60px);
+    padding: clamp(36px, 5vw, 70px) max(clamp(16px, 4vw, 60px), var(--rand));
     border-bottom: 4px solid var(--color-bg);
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -1024,7 +1024,7 @@
   /* services grid */
   .services {
     background: var(--color-bg);
-    padding: 64px 40px;
+    padding: 64px var(--rand);
     border-bottom: 4px solid var(--color-fg);
     overflow-x: clip;
   }
@@ -1208,7 +1208,7 @@
   .agenda {
     background: var(--color-accent);
     color: var(--color-bg);
-    padding: 60px 40px;
+    padding: 60px var(--rand);
     border-bottom: 4px solid var(--color-bg);
     overflow-x: clip;
   }
@@ -1399,7 +1399,7 @@
   /* talent */
   .talent {
     background: var(--color-fg);
-    padding: 64px 40px;
+    padding: 64px var(--rand);
     border-bottom: 4px solid var(--color-bg);
     overflow-x: clip;
   }
@@ -1515,7 +1515,7 @@
   /* crew */
   .crew {
     background: var(--color-bg);
-    padding: 64px 40px;
+    padding: 64px var(--rand);
     border-bottom: 4px solid var(--color-fg);
   }
   .crew-kop {
@@ -1570,13 +1570,16 @@
   }
   .crew-grid {
     list-style: none;
-    margin: 0 -40px;
-    padding: 0 40px 16px;
+    /* loopt door tot de rand van het scherm; de eerste kaart staat gelijk met de
+       kop (100cqw = breedte van <main>, zie stylesheet.css) */
+    --crew-rand: max(40px, (100cqw - 1760px) / 2);
+    margin: 0 calc(-1 * var(--crew-rand));
+    padding: 0 var(--crew-rand) 16px;
     display: flex;
     gap: 28px;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
-    scroll-padding: 0 40px;
+    scroll-padding: 0 var(--crew-rand);
     scrollbar-width: none;
     animation: aq-pop linear both;
     animation-timeline: view();
@@ -1679,7 +1682,7 @@
   /* video */
   .video-section {
     background: var(--color-bg);
-    padding: 64px 40px;
+    padding: 64px var(--rand);
     border-bottom: 4px solid var(--color-fg);
     overflow-x: clip;
   }
