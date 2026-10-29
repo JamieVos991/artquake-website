@@ -9,6 +9,18 @@ export const diensten = [
 		videoNaast: true,
 		// de eerste seconden zijn zwart: de video begint hier (in seconden)
 		videoStart: 4,
+		// recap van de laatste editie, boven de aftermovie:
+		// videos/actueel/<bestand>.mp4 met poster fotos/actueel/<bestand>.webp
+		recap: {
+			bestand: "talent-night-10-oktober-2026",
+			label: "LAATSTE EDITIE",
+			titel: "Talent Night 10 oktober 2026",
+			lineUp: ["Julia Elsinga", "One Motion", "The Border", "Leech", "Decode"],
+			film: "Salt n Frame",
+			// staand, zoals een Instagram-reel
+			verhouding: "9 / 16",
+			volgende: "Volgende editie: de Kerstspecial op 12 december.",
+		},
 		// verhouding = breedte / hoogte van de uitsnede in de galerij
 		galerij: [
 			{ foto: "band-op-het-podium", titel: "Podiumbeeld", verhouding: "4 / 3" },

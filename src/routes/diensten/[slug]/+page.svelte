@@ -27,6 +27,23 @@
   let videoLaadt = $state(false);
   const videoPoster = $derived(videoPosters[`../../../lib/assets/fotos/diensten/video-posters/${dienst.slug}.webp`]);
 
+  // recap van de laatste editie: videos/actueel/<bestand>.mp4, poster fotos/actueel/<bestand>.webp
+  const recapVideos = import.meta.glob("../../../lib/assets/videos/actueel/*.mp4", {
+    eager: true,
+    import: "default",
+  });
+  const recapPosters = import.meta.glob("../../../lib/assets/fotos/actueel/*.webp", {
+    eager: true,
+    import: "default",
+  });
+  const recapVideo = $derived(
+    dienst.recap ? recapVideos[`../../../lib/assets/videos/actueel/${dienst.recap.bestand}.mp4`] : undefined
+  );
+  const recapPoster = $derived(
+    dienst.recap ? recapPosters[`../../../lib/assets/fotos/actueel/${dienst.recap.bestand}.webp`] : undefined
+  );
+  let recapLaadt = $state(false);
+
   // galerijfoto's staan in een map met dezelfde naam als de slug,
   // bijv. fotos/diensten/talent-night/
   const galerijFotos = import.meta.glob(
@@ -135,6 +152,54 @@
   <h1 class="dp-title">{dienst.heading}</h1>
   <p class="dp-tagline">{dienst.intro}</p>
 </section>
+
+{#if recapVideo}
+  <!-- laatste editie: tekst links, staande recapvideo rechts -->
+  <section class="dp-recap" aria-labelledby="dp-recap-titel">
+    <div class="dp-recap-tekst">
+      <span class="dp-recap-label">{dienst.recap.label}</span>
+      <h2 class="dp-recap-titel" id="dp-recap-titel">{dienst.recap.titel}</h2>
+      {#if dienst.recap.lineUp?.length}
+        <p class="dp-recap-kop">Line-up</p>
+        <ul class="dp-recap-lineup">
+          {#each dienst.recap.lineUp as naam}
+            <li>{naam}</li>
+          {/each}
+        </ul>
+      {/if}
+      {#if dienst.recap.film}
+        <p class="dp-recap-film">Film: {dienst.recap.film}</p>
+      {/if}
+      {#if dienst.recap.volgende}
+        <p class="dp-recap-volgende">
+          {dienst.recap.volgende} <a href="{base}/#agenda">Bekijk de agenda</a>
+        </p>
+      {/if}
+    </div>
+    <figure class="dp-video dp-recap-video" style:--verhouding={dienst.recap.verhouding ?? "16 / 9"}>
+      <!-- svelte-ignore a11y_media_has_caption -->
+      <video
+        src={recapVideo}
+        poster={recapPoster}
+        controls
+        playsinline
+        preload={recapPoster ? "none" : "metadata"}
+        aria-label="Recap van {dienst.recap.titel}"
+        onplay={() => (recapLaadt = true)}
+        onwaiting={() => (recapLaadt = true)}
+        onplaying={() => (recapLaadt = false)}
+        onpause={() => (recapLaadt = false)}
+        onerror={() => (recapLaadt = false)}
+      ></video>
+      {#if recapLaadt}
+        <span class="dp-video-laadt" role="status">
+          <span class="dp-spinner" aria-hidden="true"></span>
+          <span class="dp-visueel-verborgen">Video laden…</span>
+        </span>
+      {/if}
+    </figure>
+  </section>
+{/if}
 
 <section
   class="dp-body"
@@ -406,6 +471,90 @@
     overflow: hidden;
     clip-path: inset(50%);
     white-space: nowrap;
+  }
+  /* laatste editie: tekst links, staande video rechts (max. 380px breed) */
+  .dp-recap {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 380px);
+    gap: 64px;
+    align-items: center;
+    padding: 72px var(--rand) 24px;
+    background: var(--color-bg);
+    color: var(--color-fg);
+  }
+  .dp-recap-label {
+    display: block;
+    margin-bottom: 18px;
+    color: var(--color-accent);
+    font: 700 12px/1 var(--font-mono);
+    letter-spacing: 0.16em;
+  }
+  .dp-recap-titel {
+    margin: 0 0 36px;
+    font-weight: 900;
+    font-stretch: 118%;
+    font-size: clamp(30px, 4.4vw, 64px);
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+  }
+  .dp-recap-kop {
+    margin: 0 0 12px;
+    color: var(--color-muted);
+    font: 700 12px/1 var(--font-mono);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .dp-recap-lineup {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0 0 32px;
+    padding: 0;
+    list-style: none;
+  }
+  .dp-recap-lineup li {
+    padding: 8px 14px;
+    border: 2px solid var(--color-fg);
+    font: 800 16px/1 var(--font-display);
+    text-transform: uppercase;
+  }
+  .dp-recap-film,
+  .dp-recap-volgende {
+    margin: 0 0 10px;
+    font: 400 16px/1.6 var(--font-mono);
+  }
+  .dp-recap-volgende a {
+    color: var(--color-accent);
+    text-underline-offset: 4px;
+  }
+  .dp-recap-video {
+    margin: 0 12px 12px 0;
+  }
+  .dp-recap-video video {
+    aspect-ratio: var(--verhouding);
+    object-fit: cover;
+    box-shadow: 12px 12px 0 var(--color-accent);
+  }
+  .dp-recap-video .dp-video-laadt {
+    top: 0;
+    aspect-ratio: auto;
+  }
+  @media (max-width: 900px) {
+    .dp-recap {
+      grid-template-columns: 1fr;
+      gap: 40px;
+      padding-top: 56px;
+    }
+    .dp-recap-video {
+      width: min(100%, 360px);
+    }
+  }
+  @media (max-width: 640px) {
+    .dp-recap {
+      padding-left: 20px;
+      padding-right: 20px;
+    }
   }
   .dp-video figcaption {
     margin-bottom: 28px;

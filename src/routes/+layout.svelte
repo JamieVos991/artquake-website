@@ -184,7 +184,8 @@
       {/each}
     </ul>
   </nav>
-  <section class="footer-col" aria-labelledby="footer-contact">
+  <!-- eigen label: "Contact" is al het contactblok erboven (#doe-mee) -->
+  <section class="footer-col" aria-label="Contactgegevens">
     <h3 class="footer-heading heading-cream" id="footer-contact">CONTACT</h3>
     <address>
       <ul>

@@ -455,12 +455,13 @@
       <span class="hl-purple-dark">NETWERK</span> EN EEN FLINKE
       <span class="hl-orange-block">DUW</span>.
     </h2>
-    <aside class="mission-side">
+    <div class="mission-side">
       <p>
         Artquake biedt oefenruimtes, organiseert optredens, exposities, events,
         workshops, masterclasses, lessen, coaching en promotie. Alles wat je
         nodig hebt om jezelf verder te ontwikkelen, behalve slaap.
-      </p>    </aside>
+      </p>
+    </div>
   </section>
 
   <section class="services" id="services" aria-label="Wat we doen">
@@ -639,8 +640,12 @@
         </button>
       </div>
     </div>
+    <!-- tabindex: zo kun je de rij met de pijltjestoetsen scrollen -->
+    <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
     <ul
       class="crew-grid"
+      tabindex="0"
+      aria-label="Crewleden"
       bind:this={crewLijst}
       onscroll={crewScrollStatus}
     >
@@ -1584,6 +1589,10 @@
     animation: aq-pop linear both;
     animation-timeline: view();
     animation-range: cover 0px cover 260px;
+  }
+  .crew-grid:focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 4px;
   }
   .crew-grid::-webkit-scrollbar {
     display: none;
