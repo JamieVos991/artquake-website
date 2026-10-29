@@ -2541,12 +2541,22 @@
     .db-zoek {
       font-size: 16px;
     }
+    /* iPhone geeft datum- en tijdvelden een eigen minimale breedte, waardoor
+       ze uit hun vak steken; zonder die eigen stijl passen ze netjes */
     .db-veld input[type="date"],
     .db-veld input[type="time"] {
+      -webkit-appearance: none;
+      appearance: none;
+      display: block;
+      min-width: 0;
+      max-width: 100%;
       min-height: 48px;
     }
+    .db-veld input::-webkit-date-and-time-value {
+      text-align: left;
+    }
     .db-veld-rij {
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     }
     .db-veld-rij > :first-child {
       grid-column: 1 / -1;
