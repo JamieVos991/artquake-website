@@ -43,8 +43,9 @@
   const CODE_GELDIG_MINUTEN = 15;
   const MAX_CODE_POGINGEN = 5;
 
+  // crypto in plaats van Math.random: die is te voorspellen
   function genereerCode() {
-    return String(Math.floor(100000 + Math.random() * 900000));
+    return String(100000 + (crypto.getRandomValues(new Uint32Array(1))[0] % 900000));
   }
 
 

@@ -890,6 +890,34 @@
         <h1>Overzicht</h1>
       </div>
 
+      <!-- alleen op een telefoon: vaste balk onderin om snel naar een onderdeel te springen -->
+      <nav class="db-spring" aria-label="Naar onderdeel">
+        <a href="#reserveringen">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" /><path d="M3 10h18M8 3v4M16 3v4M9 15l2 2 4-4" /></svg>
+          <span>Reserv.</span>
+        </a>
+        <a href="#agenda">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" /><path d="M3 10h18M8 3v4M16 3v4" /></svg>
+          <span>Agenda</span>
+        </a>
+        <a href="#agenda-formulier">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" /><path d="M3 10h18M8 3v4M16 3v4M12 13v6M9 16h6" /></svg>
+          <span>Nieuw</span>
+        </a>
+        <a href="#posters">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" /><path d="M5 16l4-4 4 4 2-2 4 4" /><circle cx="14.5" cy="8.5" r="1.5" /></svg>
+          <span>Posters</span>
+        </a>
+        <a href="#artiesten">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5" /><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M16 4.5a3.5 3.5 0 0 1 0 7M18 14.3c2 .8 3.5 2.9 3.5 5.7" /></svg>
+          <span>Artiesten</span>
+        </a>
+        <a href="#artiest-formulier">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="8" r="3.5" /><path d="M3.5 20c0-3.6 2.9-6 6.5-6 1.6 0 3 .5 4.1 1.3M19 14v6M16 17h6" /></svg>
+          <span>+ Artiest</span>
+        </a>
+      </nav>
+
       <!-- kaarten: reserveringen (deze week en altijd), artiesten en agenda -->
       <section class="db-kaarten" aria-label="Statistieken">
         <article class="db-kaart db-kaart-oranje">
@@ -998,7 +1026,7 @@
                   {/if}
                   <button
                     type="button"
-                    class="db-verwijder"
+                    class="db-verwijder db-gevaar"
                     disabled={verwijderBezig === r.id}
                     onclick={() => verwijderReservering(r)}
                     aria-label="Reservering van {r.naam ?? 'onbekend'} verwijderen"
@@ -1133,7 +1161,7 @@
                   </button>
                   <button
                     type="button"
-                    class="db-verwijder"
+                    class="db-verwijder db-gevaar"
                     disabled={verwijderBezig === a.id}
                     onclick={() => verwijderAgendaItem(a)}
                     aria-label="{a.band ?? 'Agenda item'} verwijderen"
@@ -1465,7 +1493,7 @@
                   {:else}
                     <button
                       type="button"
-                      class="db-verwijder"
+                      class="db-verwijder db-gevaar"
                       disabled={verwijderBezig === a.id}
                       onclick={() => verwijderArtiest(a)}
                       aria-label="{a.naam ?? 'Artiest'} verwijderen"
@@ -2216,6 +2244,11 @@
   }
   .db-verwijder {
     justify-self: end;
+    /* tekst in het midden, ook als de knop hoger is (telefoon: min. 44px) */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
     padding: 8px 10px;
     border: 2px solid var(--color-bg);
     background: transparent;
@@ -2228,7 +2261,13 @@
       background 0.15s,
       color 0.15s;
   }
+  /* hover: zwart vlak; alleen de echte Verwijder-knoppen worden rood */
   .db-verwijder:hover:not(:disabled) {
+    background: var(--color-bg);
+    border-color: var(--color-bg);
+    color: var(--color-fg);
+  }
+  .db-gevaar:hover:not(:disabled) {
     background: var(--color-error);
     border-color: var(--color-error);
     color: var(--color-white);
@@ -2353,15 +2392,98 @@
     }
   }
 
+  /* snelmenu: alleen op een telefoon */
+  .db-spring {
+    display: none;
+  }
+  /* vloeiend naar een onderdeel scrollen, alleen op het dashboard */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html:has(.db)) {
+      scroll-behavior: smooth;
+    }
+  }
+
   @media (max-width: 700px) {
     .db {
       --db-schaduw: 6px;
-      padding: 20px 20px 48px;
+      /* onderin ruimte voor de vaste balk met iconen */
+      padding: 20px 20px calc(110px + env(safe-area-inset-bottom));
     }
     .db-kop {
       margin: 36px 0 48px;
     }
-    .db-kaarten,
+    /* vaste balk onderin met iconen; boven de naar-bovenknop (z-index 80),
+       onder het menu (90) */
+    .db-spring {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 85;
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+      background: var(--color-bg);
+      border-top: 3px solid var(--color-accent);
+    }
+    .db-spring a {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      min-height: 52px;
+      padding: 6px 2px;
+      color: var(--color-fg);
+      font: 700 9px/1 var(--font-mono);
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .db-spring svg {
+      width: 24px;
+      height: 24px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .db-spring a:active {
+      background: var(--color-accent);
+      color: var(--color-bg);
+    }
+    .db-spring a:focus-visible {
+      outline: 3px solid var(--color-accent);
+      outline-offset: -3px;
+    }
+    /* na een sprong de kop van het blok onder de menuknop (14px + 48px) */
+    .db-blok,
+    .db-rij {
+      scroll-margin-top: 76px;
+    }
+    /* cijfers compact, twee naast elkaar */
+    .db-kaarten {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+    .db-kaart {
+      gap: 10px;
+      padding: 14px;
+    }
+    .db-kaart h2 {
+      font-size: 17px;
+    }
+    .db-label {
+      padding: 5px 7px;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+    }
+    .db-voortgang p {
+      font-size: 10px;
+      letter-spacing: 0.04em;
+    }
     .db-rij {
       gap: 22px;
       margin-bottom: 28px;
@@ -2372,11 +2494,22 @@
     .db-lijst-kop {
       display: none;
     }
+    /* geen lijst die binnen de pagina scrollt: lastig met een duim */
+    .db-lijst {
+      max-height: none;
+      overflow: visible;
+    }
+    .db-zoek {
+      max-width: none;
+    }
+    /* regel: naam over de hele breedte, dan datum en tijd, dan de knoppen
+       naast elkaar en groot genoeg om met een duim te raken */
     .db-regel,
     .db-regel-agenda,
     .db-regel-artiest {
-      grid-template-columns: minmax(0, 1fr) auto;
-      row-gap: 6px;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 10px;
+      padding: 14px 4px;
     }
     .db-regel-wie {
       grid-column: 1 / -1;
@@ -2384,9 +2517,33 @@
     .db-regel-datum {
       color: var(--db-zacht);
     }
+    .db-regel-tijd {
+      justify-self: end;
+    }
+    .db-regel .db-verwijder {
+      justify-self: stretch;
+    }
     .db-verwijder {
-      grid-column: 1 / -1;
-      justify-self: start;
+      min-height: 44px;
+      padding: 10px 14px;
+      font-size: 12px;
+    }
+    .db-annuleer {
+      align-self: stretch;
+    }
+    .db-knop-breed {
+      min-height: 52px;
+    }
+    /* 16px: kleiner laat een iPhone inzoomen zodra je in een veld tikt */
+    .db-veld input,
+    .db-veld select,
+    .db-veld textarea,
+    .db-zoek {
+      font-size: 16px;
+    }
+    .db-veld input[type="date"],
+    .db-veld input[type="time"] {
+      min-height: 48px;
     }
     .db-veld-rij {
       grid-template-columns: 1fr 1fr;
