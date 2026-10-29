@@ -15,11 +15,8 @@ export const diensten = [
 			bestand: "talent-night-10-oktober-2026",
 			label: "LAATSTE EDITIE",
 			titel: "Talent Night 10 oktober 2026",
-			lineUp: ["Julia Elsinga", "One Motion", "The Border", "Leech", "Decode"],
-			film: "Salt n Frame",
 			// staand, zoals een Instagram-reel
 			verhouding: "9 / 16",
-			volgende: "Volgende editie: de Kerstspecial op 12 december.",
 		},
 		// verhouding = breedte / hoogte van de uitsnede in de galerij
 		galerij: [

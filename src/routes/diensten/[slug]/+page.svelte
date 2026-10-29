@@ -153,54 +153,6 @@
   <p class="dp-tagline">{dienst.intro}</p>
 </section>
 
-{#if recapVideo}
-  <!-- laatste editie: tekst links, staande recapvideo rechts -->
-  <section class="dp-recap" aria-labelledby="dp-recap-titel">
-    <div class="dp-recap-tekst">
-      <span class="dp-recap-label">{dienst.recap.label}</span>
-      <h2 class="dp-recap-titel" id="dp-recap-titel">{dienst.recap.titel}</h2>
-      {#if dienst.recap.lineUp?.length}
-        <p class="dp-recap-kop">Line-up</p>
-        <ul class="dp-recap-lineup">
-          {#each dienst.recap.lineUp as naam}
-            <li>{naam}</li>
-          {/each}
-        </ul>
-      {/if}
-      {#if dienst.recap.film}
-        <p class="dp-recap-film">Film: {dienst.recap.film}</p>
-      {/if}
-      {#if dienst.recap.volgende}
-        <p class="dp-recap-volgende">
-          {dienst.recap.volgende} <a href="{base}/#agenda">Bekijk de agenda</a>
-        </p>
-      {/if}
-    </div>
-    <figure class="dp-video dp-recap-video" style:--verhouding={dienst.recap.verhouding ?? "16 / 9"}>
-      <!-- svelte-ignore a11y_media_has_caption -->
-      <video
-        src={recapVideo}
-        poster={recapPoster}
-        controls
-        playsinline
-        preload={recapPoster ? "none" : "metadata"}
-        aria-label="Recap van {dienst.recap.titel}"
-        onplay={() => (recapLaadt = true)}
-        onwaiting={() => (recapLaadt = true)}
-        onplaying={() => (recapLaadt = false)}
-        onpause={() => (recapLaadt = false)}
-        onerror={() => (recapLaadt = false)}
-      ></video>
-      {#if recapLaadt}
-        <span class="dp-video-laadt" role="status">
-          <span class="dp-spinner" aria-hidden="true"></span>
-          <span class="dp-visueel-verborgen">Video laden…</span>
-        </span>
-      {/if}
-    </figure>
-  </section>
-{/if}
-
 <section
   class="dp-body"
   class:dp-body-video={video}
@@ -243,6 +195,38 @@
     <a class="dp-cta" href="{base}/#doe-mee">DOE MEE</a>
   </div>
 </section>
+
+{#if recapVideo}
+  <!-- laatste editie, onder de uitleg: tekst links, staande recapvideo rechts -->
+  <section class="dp-recap" aria-labelledby="dp-recap-titel">
+    <div class="dp-recap-tekst">
+      <span class="dp-recap-label">{dienst.recap.label}</span>
+      <h2 class="dp-recap-titel" id="dp-recap-titel">{dienst.recap.titel}</h2>
+    </div>
+    <figure class="dp-video dp-recap-video" style:--verhouding={dienst.recap.verhouding ?? "16 / 9"}>
+      <!-- svelte-ignore a11y_media_has_caption -->
+      <video
+        src={recapVideo}
+        poster={recapPoster}
+        controls
+        playsinline
+        preload={recapPoster ? "none" : "metadata"}
+        aria-label="Recap van {dienst.recap.titel}"
+        onplay={() => (recapLaadt = true)}
+        onwaiting={() => (recapLaadt = true)}
+        onplaying={() => (recapLaadt = false)}
+        onpause={() => (recapLaadt = false)}
+        onerror={() => (recapLaadt = false)}
+      ></video>
+      {#if recapLaadt}
+        <span class="dp-video-laadt" role="status">
+          <span class="dp-spinner" aria-hidden="true"></span>
+          <span class="dp-visueel-verborgen">Video laden…</span>
+        </span>
+      {/if}
+    </figure>
+  </section>
+{/if}
 
 {#if galerij.length}
   <section class="dp-galerij" aria-label="Foto's van {dienst.heading}">
@@ -478,7 +462,8 @@
     grid-template-columns: minmax(0, 1fr) minmax(0, 380px);
     gap: 64px;
     align-items: center;
-    padding: 72px var(--rand) 24px;
+    /* staat onder de uitleg (die al 44px onderruimte heeft) en boven de galerij */
+    padding: 40px var(--rand) 88px;
     background: var(--color-bg);
     color: var(--color-fg);
   }
@@ -490,43 +475,13 @@
     letter-spacing: 0.16em;
   }
   .dp-recap-titel {
-    margin: 0 0 36px;
+    margin: 0;
     font-weight: 900;
     font-stretch: 118%;
     font-size: clamp(30px, 4.4vw, 64px);
     line-height: 0.92;
     letter-spacing: -0.02em;
     text-transform: uppercase;
-  }
-  .dp-recap-kop {
-    margin: 0 0 12px;
-    color: var(--color-muted);
-    font: 700 12px/1 var(--font-mono);
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-  }
-  .dp-recap-lineup {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin: 0 0 32px;
-    padding: 0;
-    list-style: none;
-  }
-  .dp-recap-lineup li {
-    padding: 8px 14px;
-    border: 2px solid var(--color-fg);
-    font: 800 16px/1 var(--font-display);
-    text-transform: uppercase;
-  }
-  .dp-recap-film,
-  .dp-recap-volgende {
-    margin: 0 0 10px;
-    font: 400 16px/1.6 var(--font-mono);
-  }
-  .dp-recap-volgende a {
-    color: var(--color-accent);
-    text-underline-offset: 4px;
   }
   .dp-recap-video {
     margin: 0 12px 12px 0;
@@ -544,7 +499,8 @@
     .dp-recap {
       grid-template-columns: 1fr;
       gap: 40px;
-      padding-top: 56px;
+      padding-top: 32px;
+      padding-bottom: 72px;
     }
     .dp-recap-video {
       width: min(100%, 360px);

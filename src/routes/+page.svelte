@@ -1220,7 +1220,8 @@
   /* zelfde knop als "Laad meer" op de artiestenpagina */
   .agenda-meer {
     display: block;
-    margin: 36px auto 0;
+    /* zelfde afstand als tussen de titel en de lijst (.agenda-head) */
+    margin: 32px auto 0;
     padding: 14px 32px;
     background: var(--color-bg);
     color: var(--color-fg);
@@ -1243,7 +1244,7 @@
     align-items: flex-end;
     justify-content: space-between;
     gap: 20px;
-    padding: 0 8px 28px;
+    padding: 0 8px 32px;
   }
   .agenda-title {
     margin: 0;
@@ -1816,49 +1817,28 @@
       gap: 11px;
     }
 
-    .agenda-list {
-      gap: 20px;
-    }
-    /* telefoon: een kaart met de foto over de volle breedte bovenaan,
-       daaronder de datum en de titel */
+    /* telefoon: compacte regels, kleine foto links en datum en titel ernaast,
+       zodat je de komende weken in een oogopslag ziet */
     .agenda-row {
-      grid-template-columns: minmax(0, 1fr);
-      grid-template-areas:
-        "foto"
-        "datum"
-        "naam";
-      align-items: start;
-      gap: 6px;
-      padding: 0 0 20px;
-      overflow: hidden;
-    }
-    .agenda-row > :not(.agenda-foto) {
-      margin-left: 18px;
-      margin-right: 18px;
+      grid-template-columns: 72px minmax(0, 1fr);
+      column-gap: 14px;
+      row-gap: 4px;
+      align-items: end;
+      padding: 10px 14px 10px 10px;
     }
     .agenda-foto {
-      grid-area: foto;
-      width: 100%;
-      height: auto;
-      aspect-ratio: 16 / 9;
-      margin-bottom: 10px;
-    }
-    .agenda-foto-leeg {
-      display: none;
-    }
-    /* zonder foto begint de kaart met wat ruimte boven de datum */
-    .agenda-foto-leeg + .agenda-date {
-      margin-top: 18px;
+      width: 72px;
+      height: 72px;
     }
     .agenda-date {
-      grid-area: datum;
-      font-size: 26px;
+      align-self: end;
+      font-size: 20px;
     }
     .agenda-name {
-      grid-area: naam;
-      font-size: 24px;
-      line-height: 1.05;
-      /* genoeg ruimte op een telefoon: woorden heel laten */
+      align-self: start;
+      font-size: 17px;
+      line-height: 1.1;
+      /* geen afbreekstreepjes: lange titels lopen gewoon door naar de volgende regel */
       hyphens: manual;
     }
   }

@@ -101,21 +101,21 @@
   <form class="cta-form" onsubmit={verstuurContact}>
     <p class="cta-form-label">CONTACT</p>
     <label class="cta-field-label">
-      <span class="visually-hidden">Naam</span>
-      <input class="cta-field" type="text" name="naam" placeholder="naam" autocomplete="name" bind:value={ctaNaam} required />
+      <span class="cta-veld-naam">Naam</span>
+      <input class="cta-field" type="text" name="naam" autocomplete="name" bind:value={ctaNaam} required />
     </label>
     <label class="cta-field-label">
-      <span class="visually-hidden">E-mail</span>
-      <input class="cta-field" type="email" name="email" placeholder="e-mail" autocomplete="email" bind:value={ctaEmail} required />
+      <span class="cta-veld-naam">E-mail</span>
+      <input class="cta-field" type="email" name="email" placeholder="naam@voorbeeld.nl" autocomplete="email" bind:value={ctaEmail} required />
     </label>
     <label class="cta-field-label">
-      <span class="visually-hidden">Telefoonnummer</span>
+      <span class="cta-veld-naam">Telefoonnummer</span>
       <!-- haakjes en streepje met \ ervoor: de browser leest het patroon strenger dan PHP -->
       <input
         class="cta-field"
         type="tel"
         name="telefoon"
-        placeholder="telefoonnummer"
+        placeholder="06 12345678"
         autocomplete="tel"
         inputmode="tel"
         maxlength="30"
@@ -126,8 +126,8 @@
       />
     </label>
     <label class="cta-field-label">
-      <span class="visually-hidden">Je vraag of bericht</span>
-      <textarea class="cta-field cta-textarea" name="bericht" placeholder="je vraag of bericht" rows="3" bind:value={ctaBericht} required></textarea>
+      <span class="cta-veld-naam">Je vraag of bericht</span>
+      <textarea class="cta-field cta-textarea" name="bericht" rows="3" bind:value={ctaBericht} required></textarea>
     </label>
     <!-- honeypot: onzichtbaar en niet bereikbaar met tab, alleen bots vullen dit in -->
     <label class="cta-honey" aria-hidden="true">
@@ -361,7 +361,7 @@
     padding: 24px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 20px;
     border: 3px solid var(--color-bg);
     box-shadow: 12px 12px 0 var(--color-primary);
   }
@@ -372,7 +372,16 @@
     color: var(--color-accent);
   }
   .cta-field-label {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  /* zichtbaar label boven het veld, blijft staan tijdens het typen */
+  .cta-veld-naam {
+    font: 700 11px/1 var(--font-mono);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-gray-300);
   }
   /* buiten beeld i.p.v. display:none, omdat sommige bots verborgen velden overslaan */
   .cta-honey {
@@ -566,6 +575,10 @@
     }
     .cta-submit {
       padding: 14px;
+      font-size: 16px;
+    }
+    /* 16px: anders zoomt iOS in zodra je in een veld tikt */
+    .cta-field {
       font-size: 16px;
     }
     /* onderaan ruimte voor de naar-boven-knop, die anders over de laatste regel valt */
