@@ -1,11 +1,11 @@
 # Artquake
 
 Website van Stichting Villa Artquake in Heerhugowaard: jong talent laat zich zien en horen.
-Live op https://art-quake.com (hosting bij Vimexx).
+Live op https://art-quake.com (GitHub Pages).
 
 Gebouwd met SvelteKit (Svelte 5) als statische site, met Firebase voor de gegevens en de
-inlog van de crew. Het contactformulier en de reserveringsmails lopen via PHP-scripts op
-de server van Vimexx; lokaal (`npm run dev`) gaan er dus geen mails uit.
+inlog van de crew. Het contactformulier en de reserveringsmails lopen via een
+Cloudflare Worker met Resend (zie `worker/`); lokaal (`npm run dev`) gaan er geen mails uit.
 
 ## Starten
 
@@ -19,11 +19,10 @@ Zie je een wijziging niet terug? Stop de dev-server (`Ctrl + C`) en start hem op
 
 ## Live zetten
 
-`npm run build` bouwt de site in `build-vimexx/`,
-met een `.htaccess` voor nette adressen (zie `scripts/vimexx.htaccess`). Upload de inhoud van
-die map naar `domains/art-quake.com/public_html` (DirectAdmin, File Manager: als zip uploaden
-en uitpakken). Activiteiten en artiesten uit het dashboard staan meteen live; alleen
-wijzigingen in de code vragen een nieuwe upload.
+Elke push naar `master` bouwt de site en zet hem live (`.github/workflows/deploy.yml`).
+Activiteiten en artiesten uit het dashboard staan meteen live; alleen wijzigingen in de code
+vragen een push. Lokaal bouwen kan met `npm run build`, dat komt in `build/`.
+De mail-API staat apart live, zie `worker/README.md`.
 
 ## Waar staat wat
 
@@ -39,8 +38,9 @@ wijzigingen in de code vragen een nieuwe upload.
 | `src/lib/data/site.js` | Domein voor sitemap en robots.txt |
 | `src/lib/publiekeData.js` | Agenda en artiesten lezen zonder de Firebase-SDK |
 | `src/lib/firebase.js` | Firebase voor de crewpagina's |
-| `src/lib/reserveringMail.js` | Reserveringsmails via `reservering-mail.php` (alleen op art-quake.com) |
-| `email-templates/` | HTML van de reserveringsmails (wordt in `reservering-mail.php` geplakt) |
+| `src/lib/reserveringMail.js` | Reserveringsmails via de mail-API (alleen op art-quake.com) |
+| `worker/` | Mail-API: contactformulier en reserveringsmails |
+| `email-templates/` | HTML van de reserveringsmails (wordt in de Worker meegebundeld) |
 | `firestore.rules`, `storage.rules` | Beveiligingsregels van Firebase |
 
 ## Beheerders

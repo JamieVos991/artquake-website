@@ -1,0 +1,22 @@
+# Mail-API van art-quake.com: vervangt contact.php en reservering-mail.php.
+# Live zetten: zie worker/README.md.
+name = "artquake-mail"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+
+# de mailtemplates uit email-templates/ als tekst meebundelen
+[[rules]]
+type = "Text"
+globs = ["**/*.html"]
+fallthrough = true
+
+# limieten tegen spam en per ongeluk eindeloos versturen
+[[ratelimits]]
+name = "LIMIET_CONTACT"
+namespace_id = "1001"
+simple = { limit = 3, period = 60 }
+
+[[ratelimits]]
+name = "LIMIET_CREW"
+namespace_id = "1002"
+simple = { limit = 20, period = 60 }

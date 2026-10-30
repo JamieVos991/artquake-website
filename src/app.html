@@ -8,6 +8,14 @@
 		<link rel="apple-touch-icon" href="%sveltekit.assets%/apple-touch-icon.png" />
 		<meta name="theme-color" content="#0b0b0b" />
 		<meta name="text-scale" content="scale" />
+		<!-- GitHub Pages kan geen eigen headers sturen, dus de beveiligingsregels staan hier:
+		     scripts en verbindingen alleen naar de diensten die de site gebruikt (Firebase/Google,
+		     Plausible, de mail-API). Komt er een nieuwe dienst bij, zet die dan ook hier. -->
+		<meta
+			http-equiv="Content-Security-Policy"
+			content="script-src 'self' 'unsafe-inline' https://plausible.io; connect-src 'self' ws://localhost:* https://*.googleapis.com https://plausible.io https://*.workers.dev; object-src 'none'; base-uri 'self'; form-action 'self'"
+		/>
+		<meta name="referrer" content="strict-origin-when-cross-origin" />
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<!-- lettertypes laden zonder de pagina op te houden: de tekst verschijnt

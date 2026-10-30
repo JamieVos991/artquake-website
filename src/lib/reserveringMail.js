@@ -1,8 +1,8 @@
 import { auth } from "$lib/firebaseApp.js";
+import { MAIL_API } from "$lib/data/site.js";
 
-// Reserveringsmails verstuurt de eigen server op art-quake.com
-// (reservering-mail.php, zie scripts/vimexx-reservering-mail.php). Lokaal
-// (npm run dev) draait geen PHP: daar gaan er geen mails uit en slaat het
+// Reserveringsmails verstuurt de mail-API (zie worker/). Die accepteert alleen
+// art-quake.com: lokaal (npm run dev) gaan er geen mails uit en slaat het
 // boekingsformulier de verificatiecode over.
 export const mailActief = () => typeof location !== "undefined" && location.hostname.endsWith("art-quake.com");
 
@@ -10,7 +10,7 @@ export const mailActief = () => typeof location !== "undefined" && location.host
 async function mailViaServer(gegevens) {
 	const token = await auth.currentUser?.getIdToken();
 	if (!token) throw new Error("Niet ingelogd");
-	const res = await fetch("/reservering-mail.php", {
+	const res = await fetch(`${MAIL_API}/reservering`, {
 		method: "POST",
 		headers: { "Content-Type": "application/json", Accept: "application/json" },
 		body: JSON.stringify({ ...gegevens, token }),

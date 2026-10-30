@@ -1,7 +1,7 @@
 import adapter from '@sveltejs/adapter-static';
 
-// npm run build bouwt de site voor art-quake.com (hosting bij Vimexx) in
-// build-vimexx/, zie scripts/build-vimexx.js.
+// npm run build bouwt de site voor art-quake.com (GitHub Pages) in build/,
+// zie .github/workflows/deploy.yml.
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -11,10 +11,10 @@ const config = {
 			filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 	},
 	kit: {
-		// statische site; onbekende pagina's krijgen 404.html (zie .htaccess)
+		// statische site; onbekende pagina's krijgen 404.html (dat pikt GitHub Pages zelf op)
 		adapter: adapter({
-			pages: 'build-vimexx',
-			assets: 'build-vimexx',
+			pages: 'build',
+			assets: 'build',
 			fallback: '404.html'
 		}),
 		// CSS in de HTML zelf i.p.v. losse bestanden: de browser hoeft niet eerst

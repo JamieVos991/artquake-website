@@ -2,6 +2,7 @@
   import '$lib/styles/stylesheet.css';
   import logo from '$lib/assets/artquake-logo.avif';
   import { base } from '$app/paths';
+  import { MAIL_API } from '$lib/data/site.js';
   import HamburgerMenu from '$lib/components/HamburgerMenu.svelte';
   import { diensten } from '$lib/data/diensten.js';
   import { navigatie, crewPaginas } from '$lib/data/navigatie.js';
@@ -49,9 +50,9 @@
     }
     ctaVersturen = true;
     try {
-      // De server van art-quake.com verstuurt de mail (contact.php). Lokaal
-      // (npm run dev) draait geen PHP en lukt versturen dus niet.
-      const res = await fetch('/contact.php', {
+      // De mail-API verstuurt de mail (zie worker/). Die accepteert alleen
+      // art-quake.com: lokaal (npm run dev) lukt versturen dus niet.
+      const res = await fetch(`${MAIL_API}/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({
