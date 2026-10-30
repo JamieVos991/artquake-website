@@ -20,12 +20,12 @@
   let ctaVerstuurd = $state(false);
   let ctaFout = $state('');
 
-  // Spamcontrole (Cloudflare Turnstile). Het script laadt pas als iemand het
-  // formulier gebruikt: op de crewpagina's en /annuleren draait anders geen
-  // script van buiten (zie app.html).
+  // Spamcontrole (Cloudflare Turnstile). Het vakje laadt zodra het formulier in
+  // beeld komt. Op de crewpagina's en /annuleren pas als iemand het formulier
+  // gebruikt: daar draait anders geen script van buiten (zie app.html).
+  let ctaForm = $state();
   let ctaControle = $state();
   let ctaToken = $state('');
-  let ctaControleZichtbaar = $state(false);
   let controleId;
   let controleGeladen = false;
 
@@ -38,18 +38,31 @@
     script.onload = () => {
       controleId = window.turnstile.render(ctaControle, {
         sitekey: TURNSTILE_SITEKEY,
-        appearance: 'interaction-only',
+        size: 'flexible',
         language: 'nl',
         theme: 'dark',
         callback: (token) => (ctaToken = token),
         'expired-callback': () => (ctaToken = ''),
         'error-callback': () => (ctaToken = ''),
-        'before-interactive-callback': () => (ctaControleZichtbaar = true),
-        'after-interactive-callback': () => (ctaControleZichtbaar = false),
       });
     };
     document.head.appendChild(script);
   }
+
+  $effect(() => {
+    const kijker = new IntersectionObserver(
+      ([form]) => {
+        const stil = [...crewPaginas, '/annuleren'].some((pad) => location.pathname.startsWith(base + pad));
+        if (form.isIntersecting && !stil) {
+          laadControle();
+          kijker.disconnect();
+        }
+      },
+      { rootMargin: '300px' }
+    );
+    kijker.observe(ctaForm);
+    return () => kijker.disconnect();
+  });
 
   // knop "naar boven" (alleen op een telefoon): verschijnt na een stukje scrollen
   let scrollY = $state(0);
@@ -138,7 +151,7 @@
       reageren zo snel mogelijk.
     </p>
   </hgroup>
-  <form class="cta-form" onsubmit={verstuurContact} onfocusin={laadControle}>
+  <form class="cta-form" bind:this={ctaForm} onsubmit={verstuurContact} onfocusin={laadControle}>
     <p class="cta-form-label">CONTACT</p>
     <label class="cta-field-label">
       <span class="cta-veld-naam">Naam</span>
@@ -175,7 +188,7 @@
       <input type="text" name="_honey" tabindex="-1" autocomplete="off" bind:value={ctaHoney} />
     </label>
 
-    <div class="cta-controle" class:cta-controle-zichtbaar={ctaControleZichtbaar} bind:this={ctaControle}></div>
+    <div class="cta-controle" bind:this={ctaControle}></div>
 
     <!-- staat altijd op de pagina, zodat een schermlezer de melding voorleest
          zodra die verschijnt -->
@@ -491,12 +504,9 @@
   }
   /* leeg: geen extra witruimte in het formulier, maar niet verbergen
      (een verborgen meldingsvak wordt niet voorgelezen) */
-  /* neemt alleen ruimte in als de bezoeker iets moet aanklikken */
+  /* vaste hoogte: het formulier springt niet als het vakje laadt */
   .cta-controle {
-    margin-top: -20px;
-  }
-  .cta-controle-zichtbaar {
-    margin-top: 0;
+    min-height: 65px;
   }
   .cta-meldingen:empty {
     margin-bottom: -20px;
