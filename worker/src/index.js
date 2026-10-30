@@ -58,6 +58,23 @@ async function verstuur(env, mail) {
 	}
 }
 
+// Cloudflare Turnstile: bevestigt dat het formulier door een mens is verstuurd
+async function controleerMens(token, ip, env) {
+	if (typeof token !== "string" || token === "" || token.length > 2048) {
+		throw new Afwijzing(403, "Controle mislukt, probeer het opnieuw");
+	}
+	const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ secret: env.TURNSTILE_SECRET, response: token, remoteip: ip }),
+	});
+	const uitslag = await res.json().catch(() => ({}));
+	if (uitslag.success !== true) {
+		console.error("Turnstile", uitslag["error-codes"]);
+		throw new Afwijzing(403, "Controle mislukt, probeer het opnieuw");
+	}
+}
+
 async function contact(invoer, request, env) {
 	// verborgen veld ingevuld: een bot. Doe alsof het gelukt is.
 	if (String(invoer._honey ?? "").trim() !== "") return;
@@ -66,6 +83,7 @@ async function contact(invoer, request, env) {
 	if (!(await env.LIMIET_CONTACT.limit({ key: ip })).success) {
 		throw new Afwijzing(429, "Te veel berichten, probeer het later opnieuw");
 	}
+	await controleerMens(invoer.turnstile, ip, env);
 
 	const naam = eenRegel(invoer.naam);
 	const email = String(invoer.email ?? "").trim();

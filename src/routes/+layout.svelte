@@ -2,7 +2,7 @@
   import '$lib/styles/stylesheet.css';
   import logo from '$lib/assets/artquake-logo.avif';
   import { base } from '$app/paths';
-  import { MAIL_API } from '$lib/data/site.js';
+  import { MAIL_API, TURNSTILE_SITEKEY } from '$lib/data/site.js';
   import HamburgerMenu from '$lib/components/HamburgerMenu.svelte';
   import { diensten } from '$lib/data/diensten.js';
   import { navigatie, crewPaginas } from '$lib/data/navigatie.js';
@@ -19,6 +19,37 @@
   let ctaVersturen = $state(false);
   let ctaVerstuurd = $state(false);
   let ctaFout = $state('');
+
+  // Spamcontrole (Cloudflare Turnstile). Het script laadt pas als iemand het
+  // formulier gebruikt: op de crewpagina's en /annuleren draait anders geen
+  // script van buiten (zie app.html).
+  let ctaControle = $state();
+  let ctaToken = $state('');
+  let ctaControleZichtbaar = $state(false);
+  let controleId;
+  let controleGeladen = false;
+
+  function laadControle() {
+    if (controleGeladen) return;
+    controleGeladen = true;
+    const script = document.createElement('script');
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+    script.async = true;
+    script.onload = () => {
+      controleId = window.turnstile.render(ctaControle, {
+        sitekey: TURNSTILE_SITEKEY,
+        appearance: 'interaction-only',
+        language: 'nl',
+        theme: 'dark',
+        callback: (token) => (ctaToken = token),
+        'expired-callback': () => (ctaToken = ''),
+        'error-callback': () => (ctaToken = ''),
+        'before-interactive-callback': () => (ctaControleZichtbaar = true),
+        'after-interactive-callback': () => (ctaControleZichtbaar = false),
+      });
+    };
+    document.head.appendChild(script);
+  }
 
   // knop "naar boven" (alleen op een telefoon): verschijnt na een stukje scrollen
   let scrollY = $state(0);
@@ -48,6 +79,10 @@
       ctaVerstuurd = true;
       return;
     }
+    if (!ctaToken) {
+      ctaFout = 'De spamcontrole is nog bezig. Probeer het zo nog eens.';
+      return;
+    }
     ctaVersturen = true;
     try {
       // De mail-API verstuurt de mail (zie worker/). Die accepteert alleen
@@ -60,6 +95,7 @@
           email: ctaEmail,
           telefoon: ctaTelefoon,
           bericht: ctaBericht,
+          turnstile: ctaToken,
           // het bericht wordt weggegooid als _honey is ingevuld
           _honey: ctaHoney,
         }),
@@ -75,6 +111,9 @@
       ctaFout = 'Versturen mislukt. Probeer het later opnieuw of mail ons direct.';
     } finally {
       ctaVersturen = false;
+      // een token werkt maar één keer
+      ctaToken = '';
+      window.turnstile?.reset(controleId);
     }
   }
 </script>
@@ -99,7 +138,7 @@
       reageren zo snel mogelijk.
     </p>
   </hgroup>
-  <form class="cta-form" onsubmit={verstuurContact}>
+  <form class="cta-form" onsubmit={verstuurContact} onfocusin={laadControle}>
     <p class="cta-form-label">CONTACT</p>
     <label class="cta-field-label">
       <span class="cta-veld-naam">Naam</span>
@@ -135,6 +174,8 @@
       Laat dit veld leeg
       <input type="text" name="_honey" tabindex="-1" autocomplete="off" bind:value={ctaHoney} />
     </label>
+
+    <div class="cta-controle" class:cta-controle-zichtbaar={ctaControleZichtbaar} bind:this={ctaControle}></div>
 
     <!-- staat altijd op de pagina, zodat een schermlezer de melding voorleest
          zodra die verschijnt -->
@@ -450,8 +491,15 @@
   }
   /* leeg: geen extra witruimte in het formulier, maar niet verbergen
      (een verborgen meldingsvak wordt niet voorgelezen) */
+  /* neemt alleen ruimte in als de bezoeker iets moet aanklikken */
+  .cta-controle {
+    margin-top: -20px;
+  }
+  .cta-controle-zichtbaar {
+    margin-top: 0;
+  }
   .cta-meldingen:empty {
-    margin-bottom: -12px;
+    margin-bottom: -20px;
   }
   .cta-feedback {
     margin: 0;

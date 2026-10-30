@@ -13,9 +13,15 @@
 		     Plausible, de mail-API). Komt er een nieuwe dienst bij, zet die dan ook hier. -->
 		<meta
 			http-equiv="Content-Security-Policy"
-			content="script-src 'self' 'unsafe-inline' https://plausible.io; connect-src 'self' ws://localhost:* https://*.googleapis.com https://plausible.io https://*.workers.dev; object-src 'none'; base-uri 'self'; form-action 'self'"
+			content="script-src 'self' 'unsafe-inline' https://plausible.io https://challenges.cloudflare.com; connect-src 'self' ws://localhost:* https://*.googleapis.com https://plausible.io https://*.workers.dev; object-src 'none'; base-uri 'self'; form-action 'self'"
 		/>
 		<meta name="referrer" content="strict-origin-when-cross-origin" />
+		<!-- niet tonen in een frame van een andere site (tegen clickjacking): GitHub Pages
+		     kan daar geen header voor sturen. Op elke pagina, want binnen de site wisselt
+		     de browser van pagina zonder opnieuw te laden. -->
+		<script>
+			if (window.top !== window.self) document.documentElement.style.display = "none";
+		</script>
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<!-- lettertypes laden zonder de pagina op te houden: de tekst verschijnt

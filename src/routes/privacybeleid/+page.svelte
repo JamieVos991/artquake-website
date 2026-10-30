@@ -62,11 +62,11 @@
       Plausible Analytics: anonieme bezoekstatistieken, zonder cookies en
       zonder persoonsgegevens, met servers in de EU
     </li>
-    <li>
-      Vimexx: de hosting van de website en het versturen van berichten uit het
-      contactformulier en van de mails over je reservering
-    </li>
+    <li>GitHub Pages: de hosting van de website</li>
     <li>Google Fonts: het laden van de lettertypes op de website</li>
+    <li>Cloudflare: verwerken van het contactformulier en de spamcontrole (Turnstile)</li>
+    <li>Resend: versturen van de mails van het contactformulier en reserveringen</li>
+    <li>Fastmail: onze mailbox info@art-quake.com</li>
   </ul>
 
   <h2>Jouw rechten</h2>

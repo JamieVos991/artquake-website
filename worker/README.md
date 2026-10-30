@@ -13,10 +13,11 @@ npx wrangler login
 npx wrangler deploy
 ```
 
-De eerste keer ook de sleutel van Resend instellen (je plakt hem zelf in de terminal):
+De eerste keer ook de geheime sleutels instellen (je plakt ze zelf in de terminal):
 
 ```sh
 npx wrangler secret put RESEND_API_KEY
+npx wrangler secret put TURNSTILE_SECRET
 ```
 
 ## Testen
