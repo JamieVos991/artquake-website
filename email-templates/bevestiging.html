@@ -1,17 +1,17 @@
 <!--
   Template voor de bevestigingsmail van een reservering.
-  Het onderwerp staat in scripts/vimexx-reservering-mail.php.
+  Het onderwerp staat in worker/src/index.js.
   Gebruikte variabelen: {{onderwerp}}, {{label}}, {{titel}}, {{intro}},
   {{naam}}, {{email}}, {{studio}}, {{datum}}, {{starttijd}}, {{eindtijd}}, {{annuleerlink}}
 
-  npm run build plakt deze HTML (zonder dit commentaar) in
-  reservering-mail.php; {{...}} vult dat script in. De opmaak gebruikt
+  De mail-API (worker/) bundelt deze HTML (zonder dit commentaar);
+  {{...}} vult de Worker in. De opmaak gebruikt
   <div>'s en inline stijlen, zodat het in alle mailprogramma's goed staat.
   Het logo komt van art-quake.com/mail/artquake-logo.png (static/mail/, PNG
   omdat mailprogramma's geen AVIF tonen); de balk erachter is donker omdat het
   logo zelf paars en oranje is.
   Tussen de commentaren "annuleren" en "/annuleren" staat de link om zelf te
-  annuleren ({{annuleerlink}}); zonder link haalt reservering-mail.php dat stuk weg.
+  annuleren ({{annuleerlink}}); zonder link haalt de Worker dat stuk weg.
 -->
 <div style="background:#0b0b0b; padding:32px 16px;">
   <div style="max-width:480px; margin:0 auto; background:#141414; border-radius:8px; overflow:hidden;">

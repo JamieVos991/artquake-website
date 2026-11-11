@@ -1,4 +1,4 @@
-# Mail-API van art-quake.com: vervangt contact.php en reservering-mail.php.
+# Mail-API van art-quake.com: contactformulier en reserveringsmails.
 # Live zetten: zie worker/README.md.
 name = "artquake-mail"
 main = "src/index.js"

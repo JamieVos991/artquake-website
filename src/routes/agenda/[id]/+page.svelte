@@ -43,6 +43,26 @@
       : ""
   );
   const korteDatum = $derived(item.date ? item.date.split("-").reverse().slice(0, 2).join(".") : "");
+
+  // knop "kopieer link": de eigen link van deze activiteit (/agenda/id)
+  let linkGekopieerd = $state(false);
+  let kopieerTimer;
+  async function kopieerLink() {
+    const link = `${location.origin}${base}/agenda/${item.id}`;
+    try {
+      await navigator.clipboard.writeText(link);
+    } catch {
+      // oudere browsers of geen toestemming: via een tijdelijk tekstveld
+      const veld = Object.assign(document.createElement("textarea"), { value: link });
+      document.body.append(veld);
+      veld.select();
+      document.execCommand("copy");
+      veld.remove();
+    }
+    linkGekopieerd = true;
+    clearTimeout(kopieerTimer);
+    kopieerTimer = setTimeout(() => (linkGekopieerd = false), 2000);
+  }
 </script>
 
 <svelte:head>
@@ -132,6 +152,17 @@
       {:else}
         <p>Meer informatie volgt binnenkort. Vragen? Neem gerust contact met ons op.</p>
       {/each}
+      <button type="button" class="ac-kopieer" onclick={kopieerLink}>
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          {#if linkGekopieerd}
+            <path d="M5 12.5l4.5 4.5L19 7.5" />
+          {:else}
+            <path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1.2 1.2" />
+            <path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1.2-1.2" />
+          {/if}
+        </svg>
+        <span aria-live="polite">{linkGekopieerd ? "LINK GEKOPIEERD" : "KOPIEER LINK"}</span>
+      </button>
     </div>
   </div>
 </section>
@@ -325,6 +356,40 @@
   .ac-tekst p {
     margin: 0;
     font: 400 16px/1.65 var(--font-mono);
+  }
+  /* zelfde knop als "kopieer link" bij de artiesten */
+  .ac-kopieer {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 48px;
+    margin-top: 8px;
+    padding: 0 18px 0 14px;
+    background: none;
+    border: 2px solid var(--color-bg);
+    border-radius: 999px;
+    color: var(--color-bg);
+    font: 700 12px/1 var(--font-mono);
+    letter-spacing: 0.14em;
+    cursor: pointer;
+  }
+  .ac-kopieer:hover {
+    background: var(--color-bg);
+    color: var(--color-fg);
+  }
+  .ac-kopieer:focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+  .ac-kopieer svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
 
   @media (max-width: 860px) {
