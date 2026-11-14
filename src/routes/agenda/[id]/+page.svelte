@@ -176,7 +176,6 @@
           APP ONS
           <span class="ac-visueel-verborgen">via WhatsApp (opent in een nieuw tabblad)</span>
         </a>
-        <a class="ac-bericht" href="#doe-mee">Geen WhatsApp? Stuur ons een bericht</a>
       {/if}
       <button type="button" class="ac-kopieer" onclick={kopieerLink}>
         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -406,12 +405,6 @@
   }
   .ac-tekst .ac-meedoen + .ac-aanmelden {
     margin-top: 0;
-  }
-  .ac-bericht {
-    align-self: flex-start;
-    color: inherit;
-    font: 400 15px/1.5 var(--font-mono);
-    text-underline-offset: 4px;
   }
   .ac-aanmelden:hover {
     transform: translate(-2px, -2px);
