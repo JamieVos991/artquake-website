@@ -148,6 +148,7 @@
   function openMenu() {
     open = true;
     hoverIndex = -1;
+    postersGeladen = {};
     laadAgenda();
   }
 
@@ -166,8 +167,14 @@
     focusTerug = false;
   }
 
-  // posters die al zichtbaar zijn; de rest toont zolang een laadkader
+  // posters die al zichtbaar zijn; de rest toont zolang een laadkader.
+  // Bij sluiten verdwijnt het menu helemaal en laden de afbeeldingen bij het
+  // volgende openen opnieuw, dus dit begint elke keer leeg (zie openMenu).
   let postersGeladen = $state({});
+  // een poster uit de cache is vaak al klaar voordat load afgaat: dan meteen tonen
+  const posterKlaar = (id) => (img) => {
+    if (img.complete && img.naturalWidth > 0) postersGeladen[id] = true;
+  };
 
   let menuEl = $state();
 
@@ -300,6 +307,7 @@
                     src={agendaPoster(ev)}
                     alt=""
                     loading="lazy"
+                    {@attach posterKlaar(ev.id)}
                     onload={() => (postersGeladen[ev.id] = true)}
                     onerror={() => (postersGeladen[ev.id] = true)}
                   />
