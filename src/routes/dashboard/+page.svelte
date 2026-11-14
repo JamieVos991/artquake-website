@@ -811,9 +811,14 @@
   let komendeReserveringen = $derived(
     actieveReserveringen.filter((r) => !reserveringIsAfgelopen(r)).length
   );
-  let komendeAgenda = $derived(
-    agendaItems.filter((a) => a.date && a.date >= vandaagAlsDatum()).length
+  // komend bovenaan (vroegste eerst); wat geweest is apart, het laatste eerst
+  let komendeAgendaItems = $derived(
+    agendaItems.filter((a) => !a.date || a.date >= vandaagAlsDatum())
   );
+  let geweestAgendaItems = $derived(
+    agendaItems.filter((a) => a.date && a.date < vandaagAlsDatum()).reverse()
+  );
+  let komendeAgenda = $derived(komendeAgendaItems.filter((a) => a.date).length);
 
   bewaarInvoer(
     "dashboard-zoeken",
@@ -862,6 +867,53 @@
   </ul>
   <p class="db-visueel-verborgen" role="status">Laden…</p>
 {/snippet}
+
+{#snippet agendaRegel(a)}
+  <li class="db-regel db-regel-agenda" class:is-bewerkt={bewerkId === a.id}>
+    <span class="db-regel-wie">
+      {#if a.imageUrl}
+        <img
+          class="db-avatar db-avatar-klein"
+          src={a.imageUrl}
+          alt=""
+          style:object-position={agendaFotoPositie(a)}
+        />
+      {:else}
+        <span class="db-avatar db-avatar-klein" style:background={agendaKleur(a)}></span>
+      {/if}
+      <span>
+        <strong>{a.band ?? "–"}</strong>
+        <span
+          >{a.place ?? "–"}{a.type ? ` · ${a.type}` : ""}{agendaPoster(a)
+            ? " · met poster"
+            : ""}</span
+        >
+      </span>
+    </span>
+    <span class="db-regel-datum">{formatDatum(a.date)}</span>
+    <span class="db-regel-tijd"
+      >{a.startTime ?? "–"}{a.endTime ? `–${a.endTime}` : ""}</span
+    >
+    <button
+      type="button"
+      class="db-verwijder db-bewerk"
+      onclick={() => bewerkAgendaItem(a)}
+      aria-label="{a.band ?? 'Agenda item'} bewerken"
+    >
+      Bewerk
+    </button>
+    <button
+      type="button"
+      class="db-verwijder db-gevaar"
+      disabled={verwijderBezig === a.id}
+      onclick={() => verwijderAgendaItem(a)}
+      aria-label="{a.band ?? 'Agenda item'} verwijderen"
+    >
+      {verwijderBezig === a.id ? "…" : "Verwijder"}
+    </button>
+  </li>
+{/snippet}
+
 {#snippet skeletKop()}
   <span class="db-skel db-skel-kop" aria-hidden="true"></span>
 {/snippet}
@@ -1124,59 +1176,30 @@
           </p>
           {#if !agendaGeladen}
             {@render skeletLijst(4)}
-          {:else if agendaItems.length === 0}
-            <p class="db-leeg">Geen evenementen op komst.</p>
           {:else}
-            <div class="db-lijst-kop db-lijst-kop-agenda" aria-hidden="true">
-              <span>Wat en waar</span><span>Datum</span><span>Tijd</span><span></span><span></span>
-            </div>
-            <ul class="db-lijst">
-              {#each agendaItems as a (a.id)}
-                <li class="db-regel db-regel-agenda" class:is-bewerkt={bewerkId === a.id}>
-                  <span class="db-regel-wie">
-                    {#if a.imageUrl}
-                      <img
-                        class="db-avatar db-avatar-klein"
-                        src={a.imageUrl}
-                        alt=""
-                        style:object-position={agendaFotoPositie(a)}
-                      />
-                    {:else}
-                      <span class="db-avatar db-avatar-klein" style:background={agendaKleur(a)}></span>
-                    {/if}
-                    <span>
-                      <strong>{a.band ?? "–"}</strong>
-                      <span
-                        >{a.place ?? "–"}{a.type ? ` · ${a.type}` : ""}{agendaPoster(a)
-                          ? " · met poster"
-                          : ""}</span
-                      >
-                    </span>
-                  </span>
-                  <span class="db-regel-datum">{formatDatum(a.date)}</span>
-                  <span class="db-regel-tijd"
-                    >{a.startTime ?? "–"}{a.endTime ? `–${a.endTime}` : ""}</span
-                  >
-                  <button
-                    type="button"
-                    class="db-verwijder db-bewerk"
-                    onclick={() => bewerkAgendaItem(a)}
-                    aria-label="{a.band ?? 'Agenda item'} bewerken"
-                  >
-                    Bewerk
-                  </button>
-                  <button
-                    type="button"
-                    class="db-verwijder db-gevaar"
-                    disabled={verwijderBezig === a.id}
-                    onclick={() => verwijderAgendaItem(a)}
-                    aria-label="{a.band ?? 'Agenda item'} verwijderen"
-                  >
-                    {verwijderBezig === a.id ? "…" : "Verwijder"}
-                  </button>
-                </li>
-              {/each}
-            </ul>
+            {#if komendeAgendaItems.length === 0}
+              <p class="db-leeg">Geen evenementen op komst.</p>
+            {:else}
+              <div class="db-lijst-kop db-lijst-kop-agenda" aria-hidden="true">
+                <span>Wat en waar</span><span>Datum</span><span>Tijd</span><span></span><span></span>
+              </div>
+              <ul class="db-lijst">
+                {#each komendeAgendaItems as a (a.id)}
+                  {@render agendaRegel(a)}
+                {/each}
+              </ul>
+            {/if}
+            {#if geweestAgendaItems.length}
+              <!-- wat al geweest is ingeklapt; open als je er een aan het bewerken bent -->
+              <details class="db-geweest" open={geweestAgendaItems.some((a) => a.id === bewerkId)}>
+                <summary>Al geweest ({geweestAgendaItems.length})</summary>
+                <ul class="db-lijst">
+                  {#each geweestAgendaItems as a (a.id)}
+                    {@render agendaRegel(a)}
+                  {/each}
+                </ul>
+              </details>
+            {/if}
           {/if}
         </section>
 
@@ -2229,6 +2252,28 @@
     padding: 12px 8px;
     border-top: 2px solid color-mix(in srgb, var(--color-bg) 16%, transparent);
     font-size: 14px;
+  }
+  .db-geweest {
+    margin-top: 16px;
+  }
+  .db-geweest summary {
+    width: fit-content;
+    padding: 10px 8px;
+    font: 700 12px/1 var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--db-zacht);
+    cursor: pointer;
+  }
+  .db-geweest summary:focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+  .db-geweest .db-regel {
+    opacity: 0.6;
+  }
+  .db-geweest .db-regel.is-bewerkt {
+    opacity: 1;
   }
   .db-regel.is-geweest {
     opacity: 0.45;
