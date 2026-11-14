@@ -5,6 +5,7 @@
   import { agendaKleur, agendaTekstKleur } from "$lib/data/agendaKleur.js";
   import { agendaPrijs, agendaType, langeDatum } from "$lib/data/agendaTekst.js";
   import { agendaFotoPositie } from "$lib/data/agendaFoto.js";
+  import { WHATSAPP } from "$lib/data/site.js";
 
   let { data } = $props();
 
@@ -45,6 +46,16 @@
   const korteDatum = $derived(item.date ? item.date.split("-").reverse().slice(0, 2).join(".") : "");
   // optionele aanmeldlink uit het dashboard; alleen een echte https-link tonen
   const aanmeldLink = $derived(/^https:\/\/\S+$/.test(item.aanmeldLink ?? "") ? item.aanmeldLink : "");
+  // zonder aanmeldlink: via WhatsApp, met een bericht dat al over deze activiteit gaat
+  const whatsappLink = $derived(
+    `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
+      `Hoi! Ik wil graag meedoen met ${item.band}${
+        item.date
+          ? ` op ${new Date(`${item.date}T12:00:00`).toLocaleDateString("nl-NL", { weekday: "long", day: "numeric", month: "long" })}`
+          : ""
+      }.`
+    )}`
+  );
 
   // knop "kopieer link": de eigen link van deze activiteit (/agenda/id)
   let linkGekopieerd = $state(false);
@@ -157,9 +168,15 @@
       {#if aanmeldLink}
         <a class="ac-aanmelden" href={aanmeldLink} target="_blank" rel="noopener">
           AANMELDEN
-          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 17L17 7M9 7h8v8" /></svg>
           <span class="ac-visueel-verborgen">(opent in een nieuw tabblad)</span>
         </a>
+      {:else}
+        <p class="ac-meedoen">Wil je meedoen of heb je een vraag?</p>
+        <a class="ac-aanmelden" href={whatsappLink} target="_blank" rel="noopener">
+          APP ONS
+          <span class="ac-visueel-verborgen">via WhatsApp (opent in een nieuw tabblad)</span>
+        </a>
+        <a class="ac-bericht" href="#doe-mee">Geen WhatsApp? Stuur ons een bericht</a>
       {/if}
       <button type="button" class="ac-kopieer" onclick={kopieerLink}>
         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -373,7 +390,7 @@
     align-items: center;
     gap: 10px;
     margin-top: 16px;
-    padding: 16px 22px 16px 26px;
+    padding: 16px 26px;
     background: var(--color-accent);
     border: 3px solid var(--color-bg);
     box-shadow: 4px 4px 0 var(--color-bg);
@@ -383,21 +400,25 @@
     text-decoration: none;
     transition: transform 0.12s;
   }
+  .ac-tekst .ac-meedoen {
+    margin: 16px 0 -4px;
+    font: 800 20px/1.2 var(--font-display);
+  }
+  .ac-tekst .ac-meedoen + .ac-aanmelden {
+    margin-top: 0;
+  }
+  .ac-bericht {
+    align-self: flex-start;
+    color: inherit;
+    font: 400 15px/1.5 var(--font-mono);
+    text-underline-offset: 4px;
+  }
   .ac-aanmelden:hover {
     transform: translate(-2px, -2px);
   }
   .ac-aanmelden:focus-visible {
     outline: 3px solid var(--color-bg);
     outline-offset: 4px;
-  }
-  .ac-aanmelden svg {
-    width: 22px;
-    height: 22px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 3;
-    stroke-linecap: round;
-    stroke-linejoin: round;
   }
   @media (prefers-reduced-motion: reduce) {
     .ac-aanmelden {
