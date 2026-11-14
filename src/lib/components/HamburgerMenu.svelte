@@ -166,10 +166,8 @@
     focusTerug = false;
   }
 
-  function korteDatum(d) {
-    const [, m, dag] = d.split("-");
-    return `${dag}.${m}`;
-  }
+  // posters die al zichtbaar zijn; de rest toont zolang een laadkader
+  let postersGeladen = $state({});
 
   let menuEl = $state();
 
@@ -293,9 +291,18 @@
           {:else}
             {#each agenda as ev (ev.id)}
               <li class="menu-poster">
-                <a href="{base}/agenda/{ev.id}" onclick={() => (open = false)}>
-                  <img src={agendaPoster(ev)} alt="" loading="lazy" />
-                  <span class="menu-poster-datum">{korteDatum(ev.date)}</span>
+                <a
+                  href="{base}/agenda/{ev.id}"
+                  class:menu-laadt={!postersGeladen[ev.id]}
+                  onclick={() => (open = false)}
+                >
+                  <img
+                    src={agendaPoster(ev)}
+                    alt=""
+                    loading="lazy"
+                    onload={() => (postersGeladen[ev.id] = true)}
+                    onerror={() => (postersGeladen[ev.id] = true)}
+                  />
                   <span class="menu-visueel-verborgen">{ev.band}</span>
                 </a>
               </li>
@@ -609,16 +616,6 @@
     width: 100%;
     height: auto;
   }
-  .menu-poster-datum {
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    padding: 5px 8px;
-    background: var(--color-accent);
-    color: var(--color-bg);
-    font: 700 12px/1 var(--font-mono);
-    letter-spacing: 0.06em;
-  }
   .menu-visueel-verborgen {
     position: absolute;
     width: 1px;
@@ -628,9 +625,37 @@
     clip: rect(0 0 0 0);
     white-space: nowrap;
   }
-  .menu-poster-skel {
+  /* laadkader: zolang de lijst of de afbeelding nog laadt, een staand vlak
+     waar een lichte glans overheen schuift */
+  .menu-poster-skel,
+  .menu-poster a.menu-laadt {
     aspect-ratio: 3 / 4;
-    background: color-mix(in srgb, var(--color-bg) 8%, transparent);
+    background: color-mix(in srgb, var(--color-bg) 8%, transparent)
+      linear-gradient(
+        100deg,
+        transparent 30%,
+        color-mix(in srgb, var(--color-fg) 45%, transparent) 50%,
+        transparent 70%
+      )
+      0 0 / 250% 100% no-repeat;
+    animation: menu-glans 1.4s ease-in-out infinite;
+  }
+  .menu-poster a.menu-laadt {
+    border-color: transparent;
+  }
+  .menu-poster a.menu-laadt img {
+    opacity: 0;
+  }
+  .menu-poster img {
+    transition: opacity 0.25s;
+  }
+  @keyframes menu-glans {
+    from {
+      background-position: 100% 0;
+    }
+    to {
+      background-position: -150% 0;
+    }
   }
   .menu-leeg {
     grid-column: 1 / -1;
@@ -643,6 +668,13 @@
     .menu-poster:focus-within {
       transition: none;
       transform: rotate(var(--schuin));
+    }
+    .menu-poster-skel,
+    .menu-poster a.menu-laadt {
+      animation: none;
+    }
+    .menu-poster img {
+      transition: none;
     }
   }
 

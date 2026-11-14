@@ -84,6 +84,14 @@ export const diensten = [
 			{ foto: "akoestische-gitaar", titel: "Akoestische gitaar", verhouding: "4 / 5" },
 			{ foto: "zangeres", titel: "Zangeres", verhouding: "1 / 1" },
 		],
+		// links naar volledige fotoalbums, onder de galerij (nieuwste bovenaan)
+		fotoalbums: [
+			{
+				titel: "Alkmaars Bierhuis, 7 november 2026",
+				door: "Mike Fotografie",
+				link: "https://www.mikefotografie.nl/artquake/7-11-2026-bierhuis-alkmaar",
+			},
+		],
 		bg: "cream",
 		outline: true,
 		intro: "Samen muziek maken, zonder script",

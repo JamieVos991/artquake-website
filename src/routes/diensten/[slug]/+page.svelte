@@ -254,6 +254,21 @@
         </ul>
       {/each}
     </div>
+    {#if dienst.fotoalbums?.length}
+      <h3 class="dp-galerij-kop dp-albums-kop">MEER FOTO'S</h3>
+      <ul class="dp-albums">
+        {#each dienst.fotoalbums as album (album.link)}
+          <li>
+            <a class="dp-album" href={album.link} target="_blank" rel="noopener">
+              <span class="dp-album-titel">{album.titel}</span>
+              <span class="dp-album-door">Foto's door {album.door}</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 17L17 7M9 7h8v8" /></svg>
+              <span class="dp-visueel-verborgen">(opent in een nieuw tabblad)</span>
+            </a>
+          </li>
+        {/each}
+      </ul>
+    {/if}
   </section>
 {/if}
 
@@ -570,6 +585,61 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+  /* links naar volledige albums bij een fotograaf, onder de collage */
+  .dp-albums-kop {
+    margin-top: 72px;
+  }
+  .dp-albums {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 720px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .dp-album {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 6px 20px;
+    padding: 20px 24px;
+    border: 3px solid var(--color-fg);
+    box-shadow: 6px 6px 0 var(--color-accent);
+    color: var(--color-fg);
+    text-decoration: none;
+    transition: transform 0.12s;
+  }
+  .dp-album:hover {
+    transform: translate(-2px, -2px);
+  }
+  .dp-album:focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 4px;
+  }
+  .dp-album-titel {
+    font: 800 20px/1.2 var(--font-display);
+  }
+  .dp-album-door {
+    grid-row: 2;
+    font: 400 14px/1.4 var(--font-mono);
+  }
+  .dp-album svg {
+    grid-row: 1 / 3;
+    grid-column: 2;
+    width: 28px;
+    height: 28px;
+    fill: none;
+    stroke: var(--color-accent);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .dp-album {
+      transition: none;
+    }
   }
   .dp-galerij-titel {
     position: absolute;
