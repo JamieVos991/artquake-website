@@ -43,6 +43,8 @@
       : ""
   );
   const korteDatum = $derived(item.date ? item.date.split("-").reverse().slice(0, 2).join(".") : "");
+  // optionele aanmeldlink uit het dashboard; alleen een echte https-link tonen
+  const aanmeldLink = $derived(/^https:\/\/\S+$/.test(item.aanmeldLink ?? "") ? item.aanmeldLink : "");
 
   // knop "kopieer link": de eigen link van deze activiteit (/agenda/id)
   let linkGekopieerd = $state(false);
@@ -152,6 +154,13 @@
       {:else}
         <p>Meer informatie volgt binnenkort. Vragen? Neem gerust contact met ons op.</p>
       {/each}
+      {#if aanmeldLink}
+        <a class="ac-aanmelden" href={aanmeldLink} target="_blank" rel="noopener">
+          AANMELDEN
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 17L17 7M9 7h8v8" /></svg>
+          <span class="ac-visueel-verborgen">(opent in een nieuw tabblad)</span>
+        </a>
+      {/if}
       <button type="button" class="ac-kopieer" onclick={kopieerLink}>
         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
           {#if linkGekopieerd}
@@ -356,6 +365,52 @@
   .ac-tekst p {
     margin: 0;
     font: 400 16px/1.65 var(--font-mono);
+  }
+  /* aanmelden: gevulde knop met harde schaduw, zoals de terugknop */
+  .ac-aanmelden {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+    padding: 16px 22px 16px 26px;
+    background: var(--color-accent);
+    border: 3px solid var(--color-bg);
+    box-shadow: 4px 4px 0 var(--color-bg);
+    color: var(--color-bg);
+    font: 800 18px/1 var(--font-display);
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    transition: transform 0.12s;
+  }
+  .ac-aanmelden:hover {
+    transform: translate(-2px, -2px);
+  }
+  .ac-aanmelden:focus-visible {
+    outline: 3px solid var(--color-bg);
+    outline-offset: 4px;
+  }
+  .ac-aanmelden svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ac-aanmelden {
+      transition: none;
+    }
+  }
+  .ac-visueel-verborgen {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
   }
   /* zelfde knop als "kopieer link" bij de artiesten */
   .ac-kopieer {

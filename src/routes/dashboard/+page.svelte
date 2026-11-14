@@ -61,6 +61,8 @@
   let posterUrl = $state("");
   let fotoUitsnede = $state("");
   let beschrijving = $state("");
+  // optionele link om je aan te melden, bv. bij een partner als Kunstbende
+  let aanmeldLink = $state("");
   let submitting = $state(false);
   let error = $state("");
   let success = $state(false);
@@ -454,6 +456,7 @@
     posterUrl = "";
     fotoUitsnede = "";
     beschrijving = "";
+    aanmeldLink = "";
   }
 
   function bewerkAgendaItem(a) {
@@ -472,6 +475,7 @@
     posterUrl = a.posterUrl ?? "";
     fotoUitsnede = a.fotoUitsnede ?? "";
     beschrijving = a.beschrijving ?? "";
+    aanmeldLink = a.aanmeldLink ?? "";
     error = "";
     success = false;
     document
@@ -575,12 +579,13 @@
     "dashboard-agenda",
     () => ({
       bewerkId, band, ondertitel, place, type, kleur, date, startTime, endTime,
-      prijs, imageUrl, posterUrl, fotoUitsnede, beschrijving,
+      prijs, imageUrl, posterUrl, fotoUitsnede, beschrijving, aanmeldLink,
       uploads: [...agendaUploads],
     }),
     (x) => {
       ({ bewerkId, band, ondertitel, place, type, kleur, date, startTime, endTime,
         prijs, imageUrl, posterUrl, fotoUitsnede, beschrijving } = x);
+      aanmeldLink = x.aanmeldLink ?? "";
       for (const url of x.uploads ?? []) agendaUploads.add(url);
     }
   );
@@ -739,6 +744,7 @@
       posterUrl,
       fotoUitsnede,
       beschrijving,
+      aanmeldLink: aanmeldLink.trim(),
     };
     // de foto die nu in de agenda staat (vóór het opslaan, de lijst wordt direct bijgewerkt)
     const oudItem = bewerkId ? agendaItems.find((x) => x.id === bewerkId) : null;
@@ -1297,6 +1303,16 @@
                 rows="4"
                 bind:value={beschrijving}
               ></textarea>
+            </label>
+            <label class="db-veld">
+              <span>Aanmeldlink</span>
+              <input
+                type="url"
+                pattern="https://.*"
+                title="Een link die begint met https://"
+                placeholder="bijv. https://www.kunstbende.nl/te-doen/... (optioneel); zet een knop Aanmelden op de pagina"
+                bind:value={aanmeldLink}
+              />
             </label>
             <fieldset class="db-veld">
               <legend>Poster (optioneel, kan ook later)</legend>
