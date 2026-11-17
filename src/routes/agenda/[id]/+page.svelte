@@ -17,9 +17,13 @@
 
   // de foto die binnen is; tot dan een laadkader (bij trage verbinding).
   // Uit de cache is hij vaak al klaar voordat load afgaat: dan meteen tonen.
+  // Het kader komt er pas bij zodra JavaScript draait: zonder JavaScript (of als
+  // het niet laadt) zou de foto anders voorgoed verborgen blijven.
   let fotoGeladen = $state("");
+  let fotoKaderAan = $state(false);
   function fotoKlaar(img) {
     if (img.complete && img.naturalWidth > 0) fotoGeladen = img.getAttribute("src");
+    fotoKaderAan = true;
   }
   const item = $derived(vers?.id === data.item.id ? vers : data.item);
   const weg = $derived(wegId === data.item.id);
@@ -123,7 +127,7 @@
     <h1 class="ac-titel">{item.band}</h1>
   </div>
   {#if item.imageUrl}
-    <figure class="ac-foto" class:ac-foto-laadt={fotoGeladen !== item.imageUrl}>
+    <figure class="ac-foto" class:ac-foto-laadt={fotoKaderAan && fotoGeladen !== item.imageUrl}>
       <img
         src={item.imageUrl}
         alt=""

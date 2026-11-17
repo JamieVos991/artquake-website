@@ -151,7 +151,15 @@
       reageren zo snel mogelijk.
     </p>
   </hgroup>
-  <form class="cta-form" bind:this={ctaForm} onsubmit={verstuurContact} onfocusin={laadControle}>
+  <!-- method="post": zonder JavaScript komen naam, e-mail en bericht dan niet in
+       de adresbalk (en de browsergeschiedenis) terecht, zoals bij de standaard GET -->
+  <form
+    class="cta-form"
+    method="post"
+    bind:this={ctaForm}
+    onsubmit={verstuurContact}
+    onfocusin={laadControle}
+  >
     <p class="cta-form-label">CONTACT</p>
     <label class="cta-field-label">
       <span class="cta-veld-naam">Naam</span>
@@ -189,6 +197,14 @@
     </label>
 
     <div class="cta-controle" bind:this={ctaControle}></div>
+
+    <!-- versturen en de spamcontrole hebben JavaScript nodig -->
+    <noscript>
+      <p class="cta-feedback cta-feedback-error">
+        Zonder JavaScript kan dit formulier niet versturen. Mail ons gerust op
+        <a href="mailto:info@art-quake.com">info@art-quake.com</a>.
+      </p>
+    </noscript>
 
     <!-- staat altijd op de pagina, zodat een schermlezer de melding voorleest
          zodra die verschijnt -->
@@ -518,6 +534,10 @@
   }
   .cta-feedback-error {
     color: var(--color-accent);
+  }
+  .cta-feedback a {
+    color: inherit;
+    text-underline-offset: 3px;
   }
 
   /* footer */
