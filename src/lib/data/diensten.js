@@ -1,9 +1,11 @@
 export const diensten = [
 	{
+		// de slug blijft talent-night: oude links blijven werken en de video's en
+		// foto's staan onder die naam
 		slug: "talent-night",
 		id: "01",
-		title: "TALENT\nNIGHT",
-		heading: "Talent Night",
+		title: "OPTREDENS",
+		heading: "Optredens",
 		// video: src/lib/assets/videos/diensten/<slug>.mp4 (geen bestand = geen video)
 		videoLabel: "AFTERMOVIE",
 		videoNaast: true,
@@ -30,14 +32,22 @@ export const diensten = [
 			{ foto: "dansduo", titel: "Dans", verhouding: "4 / 5" },
 			{ foto: "de-kevers", titel: "De Kevers", verhouding: "9 / 10" },
 		],
+		// links naar volledige fotoalbums, onder de galerij (nieuwste bovenaan)
+		fotoalbums: [
+			{
+				titel: "Alkmaars Bierhuis, 7 november 2026",
+				door: "Mike Fotografie",
+				link: "https://www.mikefotografie.nl/artquake/7-11-2026-bierhuis-alkmaar",
+			},
+		],
 		bg: "purple",
 		big: true,
-		intro: "Het podium voor opkomend talent",
+		intro: "Podium voor jong talent",
 		// metaBeschrijving: de tekst die Google onder de link laat zien
 		metaBeschrijving:
-			"Talent Night: 5 keer per jaar in poppodium B3 in Sint Pancras. Jonge artiesten op één podium voor publiek, vrienden en scouts. Dé uitgaansavond voor jongeren.",
+			"Optredens van Artquake: 5 keer per jaar Talent Night in poppodium B3 in Sint Pancras en optredens in het Alkmaars Bierhuis. Een podium voor jong talent.",
 		// een lege regel (\n\n) begint een nieuwe alinea
-		text: "5 Keer per jaar Talent Night in poppodium B3 in Sint Pancras. Op zo'n avond staan meerdere artiesten kort achter elkaar op hetzelfde podium, voor een zaal vol publiek, vrienden, familie en scouts. Het is dé plek om ervaring op te doen, uitgedaagd en gezien te worden!\n\nTegelijkertijd is Talent Night dé uitgaansavond voor en door jongeren uit Dijk & Waard en omgeving. Voor liefhebbers van live-muziek, dansen en feesten!",
+		text: "We organiseren 5 keer per jaar Talent Night in poppodium B3 in Sint Pancras. Op zo'n avond staan meerdere artiesten kort achter elkaar op hetzelfde podium, voor een zaal vol publiek, vrienden, familie en scouts. Het is dé plek om ervaring op te doen, uitgedaagd en gezien te worden!\n\nTegelijkertijd is Talent Night dé uitgaansavond voor en door jongeren uit Dijk & Waard en omgeving. Voor liefhebbers van live-muziek, dansen en feesten!\n\nDaarnaast bieden we met Artquake in het Alkmaars Bierhuis jonge muzikanten meer mogelijkheden om op te treden.",
 	},
 	{
 		slug: "exposities",
@@ -83,14 +93,6 @@ export const diensten = [
 			{ foto: "elektrische-gitaar", titel: "Elektrische gitaar", verhouding: "1 / 1" },
 			{ foto: "akoestische-gitaar", titel: "Akoestische gitaar", verhouding: "4 / 5" },
 			{ foto: "zangeres", titel: "Zangeres", verhouding: "1 / 1" },
-		],
-		// links naar volledige fotoalbums, onder de galerij (nieuwste bovenaan)
-		fotoalbums: [
-			{
-				titel: "Alkmaars Bierhuis, 7 november 2026",
-				door: "Mike Fotografie",
-				link: "https://www.mikefotografie.nl/artquake/7-11-2026-bierhuis-alkmaar",
-			},
 		],
 		bg: "cream",
 		outline: true,

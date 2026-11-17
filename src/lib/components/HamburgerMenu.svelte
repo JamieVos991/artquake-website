@@ -453,6 +453,8 @@
     align-items: center;
     column-gap: 14px;
     padding: 2px calc(var(--foto-b) + var(--foto-r) + 32px) 2px clamp(24px, 5vw, 72px);
+    /* de ruimte naast de foto bepaalt hoe groot de tekst mag (zie .menu-label) */
+    container-type: inline-size;
     color: inherit;
     text-decoration: none;
     outline: none;
@@ -475,7 +477,9 @@
   .menu-label {
     position: relative;
     font-weight: 900;
-    font-size: clamp(30px, 3.8vw, 58px);
+    /* het langste item (WAT WE BIEDEN) is ruim 8,3x de lettergrootte breed; zo
+       past het naast het nummer (56px + 14px) en loopt het niet onder de foto */
+    font-size: clamp(24px, min(3.8vw, (100cqi - 70px) / 8.5), 58px);
     line-height: 1;
     letter-spacing: -0.03em;
     white-space: nowrap;

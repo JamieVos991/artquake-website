@@ -3,7 +3,7 @@
 // menu (boven Dashboard) zodra je bent ingelogd, zie HamburgerMenu.svelte.
 export const navigatie = [
 	{ label: "Home", href: "/", info: "JONG TALENT LAAT ZICH ZIEN EN HOREN", foto: "dans" },
-	{ label: "Wat we doen", href: "/#services", info: "PODIUM · WORKSHOPS · COACHING", foto: "teken" },
+	{ label: "Wat we bieden", href: "/#services", info: "PODIUM · WORKSHOPS · COACHING", foto: "teken" },
 	{ label: "Agenda", href: "/#agenda", info: "OPTREDENS · EXPOSITIES · EVENTS", foto: "zingen" },
 	{ label: "Het pand", href: "/#pand", info: "HOOR HET VAN DEWI ZELF", foto: "pand" },
 	{ label: "Artiesten", href: "/artiesten", info: "JONG TALENT · MAKERS VAN NU", foto: "optreden" },

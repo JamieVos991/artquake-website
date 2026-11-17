@@ -145,7 +145,7 @@
 />
 
 <section class="dp-intro bg-{dienst.bg}">
-  <a class="dp-terug" href="{base}/#services" aria-label="Terug naar wat we doen">
+  <a class="dp-terug" href="{base}/#services" aria-label="Terug naar wat we bieden">
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 12H6M12 5l-7 7 7 7" /></svg>
   </a>
   <span class="dp-id">{dienst.id}</span>

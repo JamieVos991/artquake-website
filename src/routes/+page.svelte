@@ -359,7 +359,7 @@
   <title>Artquake | Jong talent laat zich zien en horen</title>
   <meta
     name="description"
-    content="Artquake in Heerhugowaard geeft jonge makers een podium en een netwerk: Talent Night, exposities, jamsessies, workshops, coaching en gratis oefenruimtes."
+    content="Artquake in Heerhugowaard geeft jonge makers een podium en een netwerk: optredens, exposities, jamsessies, workshops, coaching en gratis oefenruimtes."
   />
   {#if firstHeroImage && heroMobiel[firstHeroImage]}
     <link
@@ -383,7 +383,7 @@
 
 <DeelVoorbeeld
   titel="Artquake | Jong talent laat zich zien en horen"
-  beschrijving="Artquake in Heerhugowaard geeft jonge makers een podium en een netwerk: Talent Night, exposities, jamsessies, workshops, coaching en gratis oefenruimtes."
+  beschrijving="Artquake in Heerhugowaard geeft jonge makers een podium en een netwerk: optredens, exposities, jamsessies, workshops, coaching en gratis oefenruimtes."
 />
 
 <header class="hero-shell">
@@ -464,9 +464,9 @@
     </div>
   </section>
 
-  <section class="services" id="services" aria-label="Wat we doen">
+  <section class="services" id="services" aria-label="Wat we bieden">
     <header class="section-head">
-      <h2 class="section-eyebrow eyebrow-orange">WAT WE DOEN</h2>
+      <h2 class="section-eyebrow eyebrow-orange">WAT WE BIEDEN</h2>
       <span class="section-rule"></span>
     </header>
     <ul class="services-grid">
@@ -1189,8 +1189,9 @@
     line-height: 0.9;
     overflow-wrap: break-word;
   }
+  /* OPTREDENS op één regel: de lettergrootte volgt de breedte van het blok */
   .service-big .service-title {
-    font-size: clamp(48px, 6.6vw, 96px);
+    font-size: clamp(32px, 13.5cqi, 96px);
     line-height: 0.85;
   }
   .service-wide .service-title {

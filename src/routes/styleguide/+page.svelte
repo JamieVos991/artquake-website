@@ -72,7 +72,7 @@
     { naam: "Sectiekop", spec: "Archivo 900 · 34–64px", klasse: "t-sectie", tekst: "Samen werken we hard" },
     { naam: "Bloktitel", spec: "Archivo 900 · 40px", klasse: "t-blok", tekst: "Jam sessies" },
     { naam: "Naam", spec: "Archivo 900 · 19–24px", klasse: "t-naam", tekst: "Mado de Vries" },
-    { naam: "Label", spec: "Space Mono 700 · 12px · 0,16em", klasse: "t-label", tekst: "WAT WE DOEN" },
+    { naam: "Label", spec: "Space Mono 700 · 12px · 0,16em", klasse: "t-label", tekst: "WAT WE BIEDEN" },
   ];
 </script>
 

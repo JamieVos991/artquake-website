@@ -225,8 +225,8 @@
       {/each}
     </ul>
   </nav>
-  <nav class="footer-col" aria-label="Wat we doen">
-    <h3 class="footer-heading heading-lilac">WAT WE DOEN</h3>
+  <nav class="footer-col" aria-label="Wat we bieden">
+    <h3 class="footer-heading heading-lilac">WAT WE BIEDEN</h3>
     <ul>
       {#each diensten as d}
         <li>
