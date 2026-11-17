@@ -15,7 +15,7 @@
   } from "firebase/firestore";
   import { onAuthStateChanged } from "firebase/auth";
   import { db, auth } from "$lib/firebase.js";
-  import { markeerCrewBrowser } from "$lib/crew.js";
+  import { isCrewBrowser, markeerCrewBrowser } from "$lib/crew.js";
   import { uploadFoto, verwijderFoto } from "$lib/fotoUpload.js";
   import { locatieSuggesties, standaardLocatie, standaardPrijs } from "$lib/data/agendaTekst.js";
   import { agendaPoster } from "$lib/data/agendaPosters.js";
@@ -28,6 +28,9 @@
   import { artiestZichtbaar } from "$lib/data/artiestZichtbaar.js";
   import { makersVan, telMakers } from "$lib/data/makers.js";
   let authGecontroleerd = $state(false);
+  // pas iets tonen als vaststaat dat deze browser van de crew is; anders
+  // eerst een flits van het dashboard voordat je naar de inlogpagina gaat
+  let crewBrowser = $state(false);
   let ingelogdeGebruiker = $state(null);
   // uitloggen gaat via het menu
 
@@ -419,6 +422,12 @@
   let unsubscribeAuth;
 
   onMount(() => {
+    // nooit ingelogd in deze browser: meteen door, zonder op Firebase te wachten
+    if (!isCrewBrowser()) {
+      goto(`${base}/login`, { replaceState: true });
+      return;
+    }
+    crewBrowser = true;
     unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       ingelogdeGebruiker = user;
       authGecontroleerd = true;
@@ -427,7 +436,8 @@
         markeerCrewBrowser(true);
         startDataSubscripties();
       } else {
-        goto(`${base}/login`);
+        markeerCrewBrowser(false);
+        goto(`${base}/login`, { replaceState: true });
       }
     });
   });
@@ -918,8 +928,11 @@
   <span class="db-skel db-skel-kop" aria-hidden="true"></span>
 {/snippet}
 
-{#if !authGecontroleerd}
-  <!-- nog niet bekend of je bent ingelogd: alvast de vorm van het overzicht -->
+{#if !crewBrowser}
+  <!-- nog niet gecontroleerd (of op weg naar de inlogpagina): niets tonen -->
+  <div class="auth-gate" aria-busy="true"></div>
+{:else if !authGecontroleerd}
+  <!-- crew, maar nog niet bekend of je nog bent ingelogd: alvast de vorm van het overzicht -->
   <div class="db" aria-busy="true">
     <div class="db-paneel">
       <div class="db-kop">

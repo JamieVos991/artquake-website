@@ -68,6 +68,12 @@
   // eerst 5 activiteiten, met "Laad meer" telkens 5 erbij (zoals bij de artiesten)
   const agendaStap = 5;
   let agendaAantal = $state(agendaStap);
+  // foto's die binnen zijn; de rest krijgt zolang een laadkader (bij trage verbinding)
+  let agendaFotoGeladen = $state({});
+  // uit de cache is een foto vaak al klaar voordat load afgaat: dan meteen tonen
+  const agendaFotoKlaar = (id) => (img) => {
+    if (img.complete && img.naturalWidth > 0) agendaFotoGeladen[id] = true;
+  };
   let uitgelichteArtiesten = $state([]);
   let artiestenGeladen = $state(false);
 
@@ -535,10 +541,14 @@
             {#if ev.imageUrl || agendaPoster(ev)}
               <img
                 class="agenda-foto"
+                class:skel={!agendaFotoGeladen[ev.id]}
                 src={ev.imageUrl || agendaPoster(ev)}
                 alt=""
                 loading="lazy"
                 style:object-position={agendaFotoPositie(ev)}
+                {@attach agendaFotoKlaar(ev.id)}
+                onload={() => (agendaFotoGeladen[ev.id] = true)}
+                onerror={() => (agendaFotoGeladen[ev.id] = true)}
               />
             {:else}
               <span class="agenda-foto agenda-foto-leeg" aria-hidden="true"></span>
@@ -1350,6 +1360,10 @@
   }
   .skel-row {
     background: color-mix(in srgb, var(--color-bg) 6%, transparent);
+  }
+  /* agendafoto die nog laadt: zelfde glans, maar vierkant zoals de foto */
+  .agenda-foto.skel {
+    border-radius: 0;
   }
   .skel-date {
     height: 26px;

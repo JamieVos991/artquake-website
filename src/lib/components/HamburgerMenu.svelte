@@ -427,6 +427,8 @@
     padding: 56px 0;
     color: var(--color-fg);
     overflow-y: auto;
+    /* items schuiven van rechts in en posters staan schuin: nooit zijwaarts scrollen */
+    overflow-x: hidden;
   }
   .menu-pad {
     position: absolute;
@@ -565,6 +567,7 @@
     background: var(--color-fg);
     color: var(--color-bg);
     overflow-y: auto;
+    overflow-x: hidden;
   }
   /* overal dezelfde ruimte (16px): label, titel, lijn en wat eronder staat */
   .menu-rechts-kop {
@@ -729,6 +732,7 @@
       grid-template-columns: 1fr;
       grid-template-rows: auto auto;
       overflow-y: auto;
+      overflow-x: hidden;
     }
     .menu-links {
       padding: 80px 0 40px;

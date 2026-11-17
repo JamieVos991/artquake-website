@@ -14,6 +14,13 @@
   // Bestaat het item niet meer (verwijderd, of automatisch opgeruimd), dan een melding.
   let vers = $state(null);
   let wegId = $state(null);
+
+  // de foto die binnen is; tot dan een laadkader (bij trage verbinding).
+  // Uit de cache is hij vaak al klaar voordat load afgaat: dan meteen tonen.
+  let fotoGeladen = $state("");
+  function fotoKlaar(img) {
+    if (img.complete && img.naturalWidth > 0) fotoGeladen = img.getAttribute("src");
+  }
   const item = $derived(vers?.id === data.item.id ? vers : data.item);
   const weg = $derived(wegId === data.item.id);
   $effect(() => {
@@ -116,8 +123,15 @@
     <h1 class="ac-titel">{item.band}</h1>
   </div>
   {#if item.imageUrl}
-    <figure class="ac-foto">
-      <img src={item.imageUrl} alt="" style:object-position={agendaFotoPositie(item)} />
+    <figure class="ac-foto" class:ac-foto-laadt={fotoGeladen !== item.imageUrl}>
+      <img
+        src={item.imageUrl}
+        alt=""
+        style:object-position={agendaFotoPositie(item)}
+        {@attach fotoKlaar}
+        onload={(e) => (fotoGeladen = e.currentTarget.getAttribute("src"))}
+        onerror={(e) => (fotoGeladen = e.currentTarget.getAttribute("src"))}
+      />
     </figure>
   {/if}
 </section>
@@ -312,6 +326,34 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+  /* foto nog niet binnen: lichte glans over het donkere vlak */
+  .ac-foto-laadt {
+    background: var(--color-bg)
+      linear-gradient(
+        100deg,
+        transparent 30%,
+        color-mix(in srgb, var(--color-fg) 12%, transparent) 50%,
+        transparent 70%
+      )
+      0 0 / 250% 100% no-repeat;
+    animation: ac-glans 1.4s ease-in-out infinite;
+  }
+  .ac-foto-laadt img {
+    opacity: 0;
+  }
+  @keyframes ac-glans {
+    from {
+      background-position: 100% 0;
+    }
+    to {
+      background-position: -150% 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ac-foto-laadt {
+      animation: none;
+    }
   }
 
   .ac-info {
