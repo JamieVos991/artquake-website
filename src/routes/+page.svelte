@@ -702,11 +702,13 @@
       <ul class="pers-lijst">
         {#each pers as artikel (artikel.link)}
           <li class="pers-artikel">
-            <!-- groot aanhalingsteken als beeld, de kop als citaat ernaast -->
-            <span class="pers-teken" aria-hidden="true">&ldquo;</span>
             <div class="pers-inhoud">
               <p class="pers-medium">{artikel.medium}</p>
-              <h3 class="pers-titel">{artikel.titel}</h3>
+              <!-- groot aanhalingsteken als beeld, direct naast de kop -->
+              <div class="pers-citaat">
+                <span class="pers-teken" aria-hidden="true">&ldquo;</span>
+                <h3 class="pers-titel">{artikel.titel}</h3>
+              </div>
               <p class="pers-tekst">{artikel.tekst}</p>
               <a class="pers-lees" href={artikel.link} target="_blank" rel="noopener">
                 LEES HET INTERVIEW
@@ -1750,23 +1752,25 @@
     list-style: none;
   }
   .pers-artikel {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: clamp(16px, 3vw, 40px);
     max-width: 1100px;
-  }
-  .pers-teken {
-    color: var(--color-accent);
-    font: 900 clamp(120px, 16vw, 220px) / 0.8 var(--font-display);
-    /* het teken staat hoog in de letter: zo lijnt het uit met de bovenkant */
-    margin-top: -0.04em;
   }
   .pers-inhoud {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     gap: 18px;
-    padding-top: 6px;
+  }
+  /* aanhalingsteken links van de kop, bovenkanten gelijk */
+  .pers-citaat {
+    display: flex;
+    align-items: flex-start;
+    gap: clamp(10px, 1.6vw, 20px);
+  }
+  .pers-teken {
+    flex: none;
+    color: var(--color-accent);
+    /* ongeveer twee regels van de kop hoog */
+    font: 900 clamp(64px, 8vw, 120px) / 0.8 var(--font-display);
   }
   .pers-medium {
     margin: 0;
@@ -1820,15 +1824,9 @@
     .pers-lijst {
       padding: 0;
     }
-    /* telefoon: het teken boven de tekst, kleiner */
-    .pers-artikel {
-      grid-template-columns: 1fr;
-      gap: 0;
-    }
+    /* telefoon: het teken blijft naast de kop, iets kleiner */
     .pers-teken {
-      font-size: 110px;
-      line-height: 0.6;
-      margin: 0 0 4px;
+      font-size: 56px;
     }
   }
   @media (prefers-reduced-motion: reduce) {
