@@ -10,6 +10,7 @@
   import { afterNavigate, replaceState } from "$app/navigation";
   import { bewaarInvoer } from "$lib/bewaardeInvoer.svelte.js";
   import { artiestZichtbaar } from "$lib/data/artiestZichtbaar.js";
+  import { wachtOpFotos } from "$lib/wachtOpFotos.js";
 
   const bgVolgorde = ["dark", "purple", "orange", "cream"];
 
@@ -122,18 +123,31 @@
     else wachtendeHash = hash;
   });
 
-  function laadMeer() {
+  // Laad meer: zolang de foto's van de volgende kaarten laden, staan er
+  // skeletkaarten onderaan; daarna verschijnen de kaarten compleet
+  let meerAantalLaden = $state(0);
+  async function laadMeer() {
+    if (meerAantalLaden) return;
+    const volgende = gefilterdeArtiesten.slice(zichtbaarAantal, zichtbaarAantal + stapGrootte);
+    meerAantalLaden = volgende.length;
+    await wachtOpFotos(volgende.map((a) => a.imageUrl));
     zichtbaarAantal += stapGrootte;
+    meerAantalLaden = 0;
   }
 
   onMount(() => {
     haalCollectieOp("artiesten")
-      .then((docs) => {
-        artiesten = docs.filter(artiestZichtbaar).sort(() => Math.random() - 0.5);
-        if (wachtendeHash) openUitHash(wachtendeHash);
+      .then(async (docs) => {
+        const lijst = docs.filter(artiestZichtbaar).sort(() => Math.random() - 0.5);
+        // skelet laten staan tot ook de foto's van de eerste kaarten binnen zijn
+        await wachtOpFotos(lijst.slice(0, stapGrootte).map((a) => a.imageUrl));
+        artiesten = lijst;
       })
       .catch(() => {})
-      .finally(() => (geladen = true));
+      .finally(() => {
+        geladen = true;
+        if (wachtendeHash) openUitHash(wachtendeHash);
+      });
   });
 </script>
 
@@ -270,12 +284,25 @@
           {/if}
         </li>
       {/each}
+      {#each Array(meerAantalLaden) as _}
+        <li class="ap-card ap-skel-card" aria-hidden="true">
+          <div class="ap-skel ap-skel-photo"></div>
+          <div class="ap-skel ap-skel-line ap-skel-name"></div>
+          <div class="ap-skel ap-skel-line ap-skel-desc"></div>
+        </li>
+      {/each}
     </ul>
 
     {#if zichtbaarAantal < gefilterdeArtiesten.length}
-      <button class="ap-load-more" type="button" onclick={laadMeer}
-        >LAAD MEER</button
+      <button
+        class="ap-load-more"
+        type="button"
+        onclick={laadMeer}
+        disabled={meerAantalLaden > 0}
+        aria-busy={meerAantalLaden > 0}
       >
+        {meerAantalLaden ? "LADEN…" : "LAAD MEER"}
+      </button>
     {/if}
   {/if}
 </section>

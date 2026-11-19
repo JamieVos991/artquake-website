@@ -13,6 +13,7 @@
   import { agendaFotoPositie } from "$lib/data/agendaFoto.js";
   import { agendaKleur, agendaTekstKleur } from "$lib/data/agendaKleur.js";
   import { pers } from "$lib/data/pers.js";
+  import { wachtOpFotos } from "$lib/wachtOpFotos.js";
 
   // De blokken tonen een korte preview-clip (8 sec, klein, zonder geluid) i.p.v.
   // de hele video; die staat op de dienstpagina zelf. Geen clip? Dan de video.
@@ -104,9 +105,12 @@
       .finally(() => (agendaGeladen = true));
 
     haalCollectieOp("artiesten")
-      .then((docs) => {
+      .then(async (docs) => {
         const alleArtiesten = docs.filter(artiestZichtbaar);
-        uitgelichteArtiesten = kiesWillekeurig(alleArtiesten, 3);
+        const gekozen = kiesWillekeurig(alleArtiesten, 3);
+        // skelet laten staan tot ook de foto's binnen zijn
+        await wachtOpFotos(gekozen.map((a) => a.imageUrl));
+        uitgelichteArtiesten = gekozen;
       })
       .catch(() => {})
       .finally(() => (artiestenGeladen = true));
@@ -583,6 +587,7 @@
           <li class="talent-card skel-card" aria-hidden="true">
             <div class="skel skel-photo"></div>
             <div class="skel skel-talent-name"></div>
+            <div class="skel skel-talent-desc"></div>
           </li>
         {/each}
       {:else}
@@ -1403,15 +1408,30 @@
     width: 60%;
   }
   .skel-card {
-    background: var(--color-gray-950);
+    background: var(--color-gray-900);
     cursor: default;
   }
   .skel-photo {
     height: 280px;
   }
+  /* zelfde skelet als op de artiestenpagina: grijze glans op een donkere kaart
+     (de algemene .skel is donker en valt op de donkere kaart weg) */
+  .skel-card .skel {
+    background: linear-gradient(
+      90deg,
+      var(--color-gray-800) 25%,
+      var(--color-gray-700) 37%,
+      var(--color-gray-800) 63%
+    );
+    background-size: 400% 100%;
+  }
   .skel-talent-name {
-    height: 26px;
-    width: 55%;
+    height: 22px;
+    width: 60%;
+  }
+  .skel-talent-desc {
+    height: 14px;
+    width: 85%;
   }
   @keyframes skel-shimmer {
     0% {
