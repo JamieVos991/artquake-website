@@ -12,6 +12,7 @@
   import { artiestSlug } from "$lib/data/artiestLink.js";
   import { agendaFotoPositie } from "$lib/data/agendaFoto.js";
   import { agendaKleur, agendaTekstKleur } from "$lib/data/agendaKleur.js";
+  import { pers } from "$lib/data/pers.js";
 
   // De blokken tonen een korte preview-clip (8 sec, klein, zonder geluid) i.p.v.
   // de hele video; die staat op de dienstpagina zelf. Geen clip? Dan de video.
@@ -691,6 +692,32 @@
       {/each}
     </ul>
   </section>
+
+  {#if pers.length}
+    <section class="pers" id="pers" aria-label="In de pers">
+      <header class="section-head">
+        <h2 class="section-eyebrow">IN DE PERS</h2>
+        <span class="section-rule"></span>
+      </header>
+      <ul class="pers-lijst">
+        {#each pers as artikel (artikel.link)}
+          <li class="pers-artikel">
+            <!-- groot aanhalingsteken als beeld, de kop als citaat ernaast -->
+            <span class="pers-teken" aria-hidden="true">&ldquo;</span>
+            <div class="pers-inhoud">
+              <p class="pers-medium">{artikel.medium}</p>
+              <h3 class="pers-titel">{artikel.titel}</h3>
+              <p class="pers-tekst">{artikel.tekst}</p>
+              <a class="pers-lees" href={artikel.link} target="_blank" rel="noopener">
+                LEES HET INTERVIEW
+                <span class="pers-verborgen">bij {artikel.medium} (opent in een nieuw tabblad)</span>
+              </a>
+            </div>
+          </li>
+        {/each}
+      </ul>
+    </section>
+  {/if}
 
   <section class="video-section" id="pand" aria-label="Het Artquake pand">
     <header class="section-head">
@@ -1705,6 +1732,111 @@
   }
 
   /* video */
+  /* in de pers: paarse strook, groot oranje aanhalingsteken met de kop als citaat */
+  .pers {
+    background: var(--color-primary);
+    color: var(--color-fg);
+    padding: 64px var(--rand) 72px;
+    border-bottom: 4px solid var(--color-fg);
+  }
+  .pers .section-rule {
+    background: color-mix(in srgb, var(--color-fg) 35%, transparent);
+  }
+  .pers-lijst {
+    display: grid;
+    gap: 56px;
+    margin: 0;
+    padding: 0 20px;
+    list-style: none;
+  }
+  .pers-artikel {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: clamp(16px, 3vw, 40px);
+    max-width: 1100px;
+  }
+  .pers-teken {
+    color: var(--color-accent);
+    font: 900 clamp(120px, 16vw, 220px) / 0.8 var(--font-display);
+    /* het teken staat hoog in de letter: zo lijnt het uit met de bovenkant */
+    margin-top: -0.04em;
+  }
+  .pers-inhoud {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+    padding-top: 6px;
+  }
+  .pers-medium {
+    margin: 0;
+    font: 700 12px/1 var(--font-mono);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .pers-titel {
+    margin: 0;
+    max-width: 22ch;
+    font-weight: 900;
+    font-stretch: 110%;
+    font-size: clamp(30px, 4.4vw, 62px);
+    line-height: 0.95;
+    letter-spacing: -0.015em;
+  }
+  .pers-tekst {
+    margin: 0;
+    max-width: 52ch;
+    font: 400 15px/1.6 var(--font-mono);
+  }
+  /* knop zoals de terugknop: licht vlak, zwarte rand en harde schaduw */
+  .pers-lees {
+    margin-top: 6px;
+    padding: 16px 26px;
+    background: var(--color-fg);
+    color: var(--color-bg);
+    border: 3px solid var(--color-bg);
+    box-shadow: 5px 5px 0 var(--color-bg);
+    font: 800 15px/1 var(--font-display);
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    transition: transform 0.12s;
+  }
+  .pers-lees:hover {
+    transform: translate(-2px, -2px);
+  }
+  .pers-lees:focus-visible {
+    outline: 3px solid var(--color-fg);
+    outline-offset: 4px;
+  }
+  .pers-verborgen {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  @media (max-width: 640px) {
+    .pers-lijst {
+      padding: 0;
+    }
+    /* telefoon: het teken boven de tekst, kleiner */
+    .pers-artikel {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+    .pers-teken {
+      font-size: 110px;
+      line-height: 0.6;
+      margin: 0 0 4px;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pers-lees {
+      transition: none;
+    }
+  }
+
   .video-section {
     background: var(--color-bg);
     padding: 64px var(--rand);
@@ -1789,6 +1921,7 @@
   .agenda,
   .talent,
   .crew,
+  .pers,
   .video-section {
       padding-left: 20px;
       padding-right: 20px;
